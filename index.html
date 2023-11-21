@@ -5,54 +5,29 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>White Rabbit Vintage Market</title>
   <meta name="description" content="Artfully curated vintage items to bring curiousity & intrigue to your home">
-  <style>
-    /* latin */
-    @font-face {
-      font-family: 'Jacques Francois Shadow';
-      font-style: normal;
-      font-weight: 400;
-      font-display: swap;
-      src: url(assets/fonts/Jacques-Francois-Shadow.woff2) format('woff2');
-      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-    }
-    /* latin */
-    @font-face {
-      font-family: 'Open Sans';
-      font-style: normal;
-      font-weight: 300;
-      font-stretch: 100%;
-      font-display: swap;
-      src: url(assets/fonts/Open-Sans.woff2) format('woff2');
-      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-    }
-    .font-heading {
-      font-family: 'Jacques Francois Shadow', serif;
-      text-transform: uppercase;
-    }
-    .font-body {
-      font-family: 'Open Sans', sans-serif;
-    }
-    .filter-stone-600 {
-      filter: invert(31%) sepia(8%) saturate(445%) hue-rotate(353deg) brightness(94%) contrast(84%);
-    }
-    .filter-stone-800 {
-      filter: invert(10%) sepia(5%) saturate(1179%) hue-rotate(325deg) brightness(95%) contrast(86%);
-    }
-    .hover\:filter-stone-600:hover {
-      filter: invert(31%) sepia(8%) saturate(445%) hue-rotate(353deg) brightness(94%) contrast(84%);
-    }
-    .hover\:filter-stone-800:hover {
-      filter: invert(10%) sepia(5%) saturate(1179%) hue-rotate(325deg) brightness(95%) contrast(86%);
-    }
-  </style>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="assets/style.css">
+  <script src="https://cdn.tailwindcss.com/3.3.5"></script>
 </head>
 <body class="flex min-h-full bg-stone-50">
   <main class="flex-auto min-h-screen">
-    <div class="relative max-w-5xl mx-auto pt-16 sm:pt-20 lg:pt-24">
+
+    <header class="relative max-w-5xl mx-auto py-10">
       <h1 class="font-heading tracking-wide text-3xl text-center text-stone-950 leading-relaxed sm:text-5xl sm:leading-relaxed">
         White Rabbit Vintage Market
       </h1>
+
+      <nav class="font-body text-xl flex justify-center pt-6">
+        <ul class="flex space-x-12">
+          <li><a href="#">Shop</a></li>
+          <li><a href="#">About</a></li>
+          <li><a href="#">Contact</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <img class="hero-image sm:h-128" src="assets/images/collection1-optimized.jpg" alt="antique collection of glasses and statues">
+
+    <div class="relative max-w-5xl mx-auto">
       <p class="font-body mt-8 text-base text-stone-950 text-center max-w-sm mx-auto sm:text-xl sm:max-w-2xl">
         Artfully curated vintage items to bring curiousity & intrigue to your home.
       </p>
@@ -69,12 +44,13 @@
       </div>
     </div>
 
-    <div class="sticky top-[100vh]">
+    <div class="sticky top-[100vh] mt-10">
       <div style="background-color: #86A789; height: 20px;"></div>
       <div style="background-color: #B2C8BA; height: 20px;"></div>
       <div style="background-color: #D2E3C8; height: 20px;"></div>
       <div style="background-color: #EBF3E8; height: 20px;"></div>
     </div>
+
   </main>
 </body>
 </html>
