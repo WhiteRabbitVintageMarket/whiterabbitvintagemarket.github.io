@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ title }}</title>
+  <meta name="description" content="{{ description }}">
+
+  {% set css %}
+    {% include "css/style.css" %}
+  {% endset %}
+  <style>
+    {{ css | cssmin | safe }}
+  </style>
+  <script src="https://cdn.tailwindcss.com/3.3.5"></script>
+</head>
+<body class="flex min-h-full custom-font-body custom-bg-pure-white text-stone-950">
+  <div class="flex-auto min-h-screen">
+    <header class="relative max-w-5xl mx-auto py-10">
+      <h1 class="custom-font-heading tracking-wide text-3xl text-center leading-relaxed sm:text-5xl sm:leading-relaxed">
+        <a href="/">White Rabbit Vintage Market</a>
+      </h1>
+
+      <nav class="text-xl flex justify-center pt-6">
+        <ul class="flex space-x-10">
+          <li><a class="p-2 focus:ring-4 focus:ring-blue-300 focus:outline-none" href="/shop">Shop</a></li>
+          <li><a class="p-2 focus:ring-4 focus:ring-blue-300 focus:outline-none" href="/about">About</a></li>
+          <li><a class="p-2 focus:ring-4 focus:ring-blue-300 focus:outline-none" href="/contact">Contact</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main>
+      {{ content | safe }}
+    </main>
+
+    <footer class="sticky top-[100vh] mt-10">
+      <div class="custom-bg-roycroft-bottle-green h-5"></div>
+    </footer>
+  </div>
+</body>
+</html>
