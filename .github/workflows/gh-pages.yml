@@ -1,0 +1,39 @@
+name: "deploy to gh pages"
+on:
+  push:
+    branches:
+      - main
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: ⬇️ Checkout repo
+        uses: actions/checkout@v4
+
+      - name: ⎔ Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: 📥 Download deps
+        run: npm install
+
+      - name: ▶️ Build eleventy site
+        run: npm run build
+
+  deploy:
+    needs: build
+
+    permissions:
+      pages: write
+      id-token: write
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    runs-on: ubuntu-latest
+    steps:
+      - name: ⬆️ Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v2
