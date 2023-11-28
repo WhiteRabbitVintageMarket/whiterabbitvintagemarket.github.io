@@ -5,6 +5,16 @@ description: Artfully curated vintage items to bring curiousity & intrigue to yo
 ---
 
 <div class="mx-6 my-6">
-  <h2 class="text-3xl">Shop</h2>
-  <p class="mt-10">Coming soon...</p>
+  <h2 class="text-3xl mb-4">Shop</h2>
+  <div class="grid grid-cols-1 gap-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+    {% for product in products %}
+      <div>
+        <img src="{{ product.url}}" class="object-cover aspect-square {% if product.sold %}opacity-30{% endif %}">
+        <p class="mb-6">
+           {% if product.sold %}<span class="uppercase">sold - </span>{% endif %}
+           {{ product.name }}
+          </p>
+      </div>
+    {% endfor %}
+  </div>
 </div>
