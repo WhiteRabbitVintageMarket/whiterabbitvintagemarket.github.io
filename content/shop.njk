@@ -8,8 +8,11 @@ description: Artfully curated vintage items to bring curiousity & intrigue to yo
   <h2 class="text-3xl mb-4">Shop</h2>
   <div class="grid grid-cols-1 gap-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
     {% for product in products %}
-      <div>
-        <img src="{{ product.url}}" class="object-cover aspect-square {% if product.sold %}opacity-30{% endif %}">
+      <div id="product-id-{{ product.id }}" class="product-container" 
+        data-name="{{ product.name }}" data-description="{{ product.description }}" 
+        data-size="{{ product.size }}" data-price="{{ product.price }}" 
+        data-image-url="{{ product.url }}" data-is-sold="{{ product.sold }}">
+        <img src="{{ product.url }}" alt="{{ product.name }}" class="object-cover aspect-square {% if product.sold %}opacity-30{% endif %}">
         <p class="mb-6">
            {% if product.sold %}<span class="uppercase">sold - </span>{% endif %}
            {{ product.name }}
@@ -18,3 +21,103 @@ description: Artfully curated vintage items to bring curiousity & intrigue to yo
     {% endfor %}
   </div>
 </div>
+
+<div id="modal-container" class="hidden fixed w-full h-full top-0 left-0 flex items-center justify-center pointer-events-none">
+  <div id="modal-overlay" class="modal-close absolute w-full h-full bg-gray-900 opacity-50"></div>
+    <div class="bg-white h-[95vh] w-11/12 md:max-w-4xl mx-auto shadow-lg z-50 overflow-y-auto">      
+      <div class="py-4 text-left px-6">
+
+        <div class="flex justify-between items-center pb-4">
+          <p class="modal-title text-lg md:text-xl"></p>
+          <div class="modal-close cursor-pointer ml-4 z-50">
+            <svg class="fill-current text-black" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 18">
+              <path d="M14.53 4.53l-1.06-1.06L9 7.94 4.53 3.47 3.47 4.53 7.94 9l-4.47 4.47 1.06 1.06L9 10.06l4.47 4.47 1.06-1.06L10.06 9z"></path>
+            </svg>
+          </div>
+        </div>
+
+        <div class="modal-body">
+          <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div class="product-image"></div>
+            <div class="product-detail"></div>
+          </div>
+        </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const body = document.querySelector("body");
+  const modalContainer = document.querySelector("#modal-container");
+  const productContainers = document.querySelectorAll(".product-container");
+  const closeButtons = document.querySelectorAll(".modal-close");
+
+  productContainers.forEach((product) =>
+    product.addEventListener("click", launchModal),
+  );
+  closeButtons.forEach((button) => button.addEventListener("click", closeModal));
+
+  function launchModal(event) {
+    modalContainer.classList.remove("hidden");
+    modalContainer.classList.remove("pointer-events-none");
+    body.classList.add("h-screen", "overflow-y-hidden");
+
+    const selectedProduct = document.getElementById(
+      event.currentTarget.getAttribute("id"),
+    );
+    addProductToModal(selectedProduct);
+  }
+
+  function closeModal(event) {
+    modalContainer.classList.add("hidden");
+    modalContainer.classList.add("pointer-events-none");
+    body.classList.remove("h-screen", "overflow-y-hidden");
+    removeProductFromModal();
+  }
+
+  function addProductToModal(selectedProduct) {
+    const modalTitle = modalContainer.querySelector(".modal-title");
+    const productImage = modalContainer.querySelector(".product-image");
+    const productDetail = modalContainer.querySelector(".product-detail");
+
+    const { name, description, size, price, imageUrl, isSold } =
+      selectedProduct.dataset;
+
+    modalTitle.innerHTML = name;
+    productImage.innerHTML = `<img src="${imageUrl}" alt="${name}" class="h-[65vh] object-cover">`;
+
+    if (isSold === "true") {
+      productDetail.innerHTML +=
+        '<span class="bg-red-100 text-red-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded dark:bg-red-900 dark:text-red-300">Sold</span>';
+    } else {
+      productDetail.innerHTML +=
+        '<span class="bg-green-100 text-green-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded dark:bg-green-900 dark:text-green-300">Available</span>';
+    }
+
+    if (description) {
+      productDetail.innerHTML += `<p class="my-4">${description}</p>`;
+    }
+
+    if (size) {
+      productDetail.innerHTML += `<p class="my-4">${size}</p>`;
+    }
+
+    if (price) {
+      const formattedPrice = new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: "USD",
+      }).format(price);
+      productDetail.innerHTML += `<p class="my-4 font-bold">${formattedPrice} + tax and shipping</p>`;
+    }
+  }
+
+  function removeProductFromModal() {
+    const modalTitle = modalContainer.querySelector(".modal-title");
+    const productImage = modalContainer.querySelector(".product-image");
+    const productDetail = modalContainer.querySelector(".product-detail");
+
+    productDetail.innerHTML = "";
+    modalTitle.innerHTML = "";
+    productImage.innerHTML = "";
+  }
+</script>
