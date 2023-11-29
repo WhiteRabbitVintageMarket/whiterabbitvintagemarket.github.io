@@ -24,24 +24,24 @@ description: Artfully curated vintage items to bring curiousity & intrigue to yo
 
 <div id="modal-container" class="hidden fixed w-full h-full top-0 left-0 flex items-center justify-center pointer-events-none">
   <div id="modal-overlay" class="modal-close absolute w-full h-full bg-gray-900 opacity-50"></div>
-    <div class="bg-white h-[95vh] w-11/12 md:max-w-4xl mx-auto shadow-lg z-50 overflow-y-auto">      
-      <div class="py-4 text-left px-6">
+  <div class="bg-white h-[95vh] w-11/12 md:max-w-4xl mx-auto shadow-lg z-50 overflow-y-auto">
+    <div class="py-4 text-left px-6">
 
-        <div class="flex justify-between items-center pb-4">
-          <p class="modal-title text-lg md:text-xl"></p>
-          <div class="modal-close cursor-pointer ml-4 z-50">
-            <svg class="fill-current text-black" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 18">
-              <path d="M14.53 4.53l-1.06-1.06L9 7.94 4.53 3.47 3.47 4.53 7.94 9l-4.47 4.47 1.06 1.06L9 10.06l4.47 4.47 1.06-1.06L10.06 9z"></path>
-            </svg>
-          </div>
+      <div class="flex justify-between items-center pb-4">
+        <p class="modal-title text-lg md:text-xl"></p>
+        <div class="modal-close cursor-pointer ml-4 z-50">
+          <svg class="fill-current text-black" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 18">
+            <path d="M14.53 4.53l-1.06-1.06L9 7.94 4.53 3.47 3.47 4.53 7.94 9l-4.47 4.47 1.06 1.06L9 10.06l4.47 4.47 1.06-1.06L10.06 9z"></path>
+          </svg>
         </div>
+      </div>
 
-        <div class="modal-body">
-          <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div class="product-image"></div>
-            <div class="product-detail"></div>
-          </div>
+      <div class="modal-body">
+        <div class="grid gap-4 grid-cols-2">
+          <div class="product-image"></div>
+          <div class="product-detail"></div>
         </div>
+      </div>
     </div>
   </div>
 </div>
@@ -84,7 +84,7 @@ description: Artfully curated vintage items to bring curiousity & intrigue to yo
       selectedProduct.dataset;
 
     modalTitle.innerHTML = name;
-    productImage.innerHTML = `<img src="${imageUrl}" alt="${name}" class="h-[65vh] object-cover">`;
+    productImage.innerHTML = `<img src="${imageUrl}" alt="${name}" class="h-[40vh] object-cover sm:h-[65vh]">`;
 
     if (isSold === "true") {
       productDetail.innerHTML +=
