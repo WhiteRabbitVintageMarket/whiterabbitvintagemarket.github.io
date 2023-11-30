@@ -8,9 +8,9 @@ description: Artfully curated vintage items to bring curiousity & intrigue to yo
   <h2 class="text-3xl mb-4">Shop</h2>
   <div class="grid grid-cols-1 gap-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
     {% for product in products %}
-      <div id="product-id-{{ product.id }}" class="product-container" 
-        data-name="{{ product.name }}" data-description="{{ product.description }}" 
-        data-size="{{ product.size }}" data-price="{{ product.price }}" 
+      <div id="product-id-{{ product.id }}" class="product-container cursor-pointer"
+        data-name="{{ product.name }}" data-description="{{ product.description }}"
+        data-size="{{ product.size }}" data-price="{{ product.price }}"
         data-image-url="{{ product.url }}" data-is-sold="{{ product.sold }}">
         <img src="{{ product.url }}" alt="{{ product.name }}" class="object-cover aspect-square {% if product.sold %}opacity-30{% endif %}">
         <p class="mb-6">
@@ -24,7 +24,7 @@ description: Artfully curated vintage items to bring curiousity & intrigue to yo
 
 <div id="modal-container" class="hidden fixed w-full h-full top-0 left-0 flex items-center justify-center pointer-events-none">
   <div id="modal-overlay" class="modal-close absolute w-full h-full bg-gray-900 opacity-50"></div>
-    <div class="bg-white h-[85vh] w-11/12 md:max-w-4xl mx-auto shadow-lg z-50 overflow-y-auto">      
+    <div class="bg-white supports-[height:100cqh]:h-[100cqh] supports-[height:100svh]:h-[100svh] w-11/12 md:max-w-4xl mx-auto shadow-lg z-50 overflow-y-auto">
       <div class="py-4 text-left px-6">
 
         <div class="flex justify-between items-center pb-4">
@@ -62,6 +62,7 @@ description: Artfully curated vintage items to bring curiousity & intrigue to yo
     modalContainer.classList.remove("pointer-events-none");
     // prevent background scrolling
     // https://css-tricks.com/prevent-page-scrolling-when-a-modal-is-open/
+    body.classList.add("h-screen", "overflow-y-hidden");
     document.body.style.position = 'fixed';
     document.body.style.top = `-${window.scrollY}px`;
 
@@ -74,8 +75,11 @@ description: Artfully curated vintage items to bring curiousity & intrigue to yo
   function closeModal(event) {
     modalContainer.classList.add("hidden");
     modalContainer.classList.add("pointer-events-none");
+    body.classList.remove("h-screen", "overflow-y-hidden");
+    const scrollY = document.body.style.top;
     document.body.style.position = '';
     document.body.style.top = '';
+    window.scrollTo(0, parseInt(scrollY || '0') * -1);
     removeProductFromModal();
   }
 
