@@ -17,8 +17,8 @@ function launchModal(event) {
   // prevent background scrolling
   // https://css-tricks.com/prevent-page-scrolling-when-a-modal-is-open/
   document.body.classList.add("h-screen", "overflow-y-hidden");
-  document.body.style.position = "fixed";
   document.body.style.top = `-${window.scrollY}px`;
+  document.body.style.position = "fixed";
 
   const selectedProduct = document.getElementById(
     event.currentTarget.getAttribute("id"),
