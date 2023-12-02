@@ -12,14 +12,14 @@ description: Artfully curated vintage items to bring curiousity & intrigue to yo
         data-name="{{ product.name }}" data-description="{{ product.description }}"
         data-size="{{ product.size }}" data-price="{{ product.price }}"
         data-image-url="{{ product.url }}" data-is-sold="{{ product.sold }}">
-        <img src="{{ product.url }}" alt="{{ product.name }}" class="object-cover aspect-square {% if product.sold %}opacity-30{% endif %}">
+        <img src="{{ product.url }}" alt="{{ product.name }}" class="object-cover aspect-square w-full {% if product.sold %}opacity-30{% endif %}">
         <p class="mb-6">{{ product.name }}</p>
       </div>
     {% endfor %}
   </div>
 </div>
 
-<div id="modal-container" class="hidden fixed w-full h-full top-0 left-0 flex items-center justify-center pointer-events-none">
+<div id="modal-container" class="hidden fixed w-full h-full top-0 left-0 flex items-center justify-center z-10 pointer-events-none">
   <div id="modal-overlay" class="modal-close absolute w-full h-full bg-gray-900 opacity-50"></div>
     <div class="bg-white supports-[height:95cqh]:h-[95cqh] supports-[height:95svh]:h-[95svh] w-11/12 md:max-w-4xl mx-auto shadow-lg z-50 rounded overflow-y-auto">
       <div class="py-4 text-left px-6">
