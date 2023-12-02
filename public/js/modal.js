@@ -48,7 +48,7 @@ function addProductToModal(selectedProduct) {
     selectedProduct.dataset;
 
   modalTitle.innerHTML = name;
-  productImage.innerHTML = `<img src="${imageUrl}" alt="${name}" class="h-[40vh] object-cover sm:h-[65vh]">`;
+  productImage.innerHTML = `<img src="${imageUrl}" alt="${name}" class="object-cover sm:h-[75vh]">`;
 
   if (isSold === "true") {
     productDetail.innerHTML +=
