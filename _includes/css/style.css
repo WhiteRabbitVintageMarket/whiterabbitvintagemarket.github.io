@@ -65,3 +65,7 @@
   filter: invert(31%) sepia(8%) saturate(445%) hue-rotate(353deg)
     brightness(94%) contrast(84%);
 }
+
+[aria-current="page"] {
+  border-bottom: 2px solid rgb(12, 10, 9);
+}

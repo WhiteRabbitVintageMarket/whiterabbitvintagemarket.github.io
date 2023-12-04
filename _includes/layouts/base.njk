@@ -23,9 +23,9 @@
 
       <nav class="text-xl flex justify-center pt-6">
         <ul class="flex space-x-10">
-          <li><a class="p-2 focus:ring-4 focus:ring-blue-300 focus:outline-none" href="/shop">Shop</a></li>
-          <li><a class="p-2 focus:ring-4 focus:ring-blue-300 focus:outline-none" href="/about">About</a></li>
-          <li><a class="p-2 focus:ring-4 focus:ring-blue-300 focus:outline-none" href="/contact">Contact</a></li>
+          <li><a class="p-2 focus:ring-4 focus:ring-blue-300 focus:outline-none" href="/shop/" {% if page.url == "/shop/" %} aria-current="page"{% endif %}>Shop</a></li>
+          <li><a class="p-2 focus:ring-4 focus:ring-blue-300 focus:outline-none" href="/about/" {% if page.url == "/about/" %} aria-current="page"{% endif %}>About</a></li>
+          <li><a class="p-2 focus:ring-4 focus:ring-blue-300 focus:outline-none" href="/contact/" {% if page.url == "/contact/" %} aria-current="page"{% endif %}>Contact</a></li>
         </ul>
       </nav>
     </header>
