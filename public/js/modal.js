@@ -63,7 +63,7 @@ function addProductToModal(selectedProduct) {
       style: "currency",
       currency: "USD",
     }).format(price);
-    productDetail.innerHTML += `<p class="my-4 font-bold">${formattedPrice} + tax and shipping</p>`;
+    productDetail.innerHTML += `<p class="my-4 font-bold">${formattedPrice} + shipping</p>`;
   }
 
   if (description) {
