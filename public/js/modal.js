@@ -52,7 +52,7 @@ function addProductToModal(selectedProduct) {
 
   if (isSold === "true") {
     productDetail.innerHTML +=
-      '<span class="bg-red-100 text-red-800 text-sm font-medium rounded me-2 px-2.5 py-0.5 dark:bg-red-900 dark:text-red-300">Sold</span>';
+      '<p class="mb-4"><span class="bg-red-100 text-red-800 text-sm font-medium rounded me-2 px-2.5 py-0.5 dark:bg-red-900 dark:text-red-300">Sold</span><p>';
   }
 
   if (price) {
@@ -60,7 +60,7 @@ function addProductToModal(selectedProduct) {
       style: "currency",
       currency: "USD",
     }).format(price);
-    productDetail.innerHTML += `<p class="my-4 font-bold">${formattedPrice} + shipping</p>`;
+    productDetail.innerHTML += `<p class="font-bold">${formattedPrice} + shipping</p>`;
   }
 
   if (description) {
