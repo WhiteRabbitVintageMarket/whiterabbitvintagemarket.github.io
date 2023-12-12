@@ -5,8 +5,8 @@ description: Artfully curated vintage items to bring curiousity & intrigue to yo
 ---
 
 <div class="mx-6 my-6">
-  <div class="grid grid-cols-1 gap-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-    {% for product in products %}
+  <div class="grid grid-cols-1 gap-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
+    {% for product in products | sort(true, false, "id") %}
       <div id="product-id-{{ product.id }}" class="product-container cursor-pointer"
         data-name="{{ product.name }}" data-description="{{ product.description }}"
         data-size="{{ product.size }}" data-price="{{ product.price }}"

@@ -71,6 +71,33 @@
       "price": "22",
       "url": "/images/products/vintage-mother-of-pearl-trinket-dish.jpeg",
       "sold": false
+    },
+    {
+      "id": 9,
+      "name": "Hollywood Regency Vintage Matson Dogwood & Bird Gold Ormolu Fluted Crystal Perfume Bottle",
+      "description": "This stunning vintage Matson ormolu perfume bottle is simply beautiful. It is signed by Matson, Made in USA on the back of the dauber as well as on the floral base. The perfume bottle has the Mason attention to detail associated with the dogwood blossoms and birds. The bottle is lovely fluted crystal and the gold ormolu is in great condition.",
+      "size": "8.5x2.75 inches",
+      "price": "128",
+      "url": "/images/products/bird-gold-ormolu-fluted-crystal-perfume-bottle.jpeg",
+      "sold": false
+    },
+    {
+      "id": 10,
+      "name": "CBK Ltd. 1988 Teal/Patina Candlesticks",
+      "description": "Beautiful color on these 1988 candlesticks. These two candlesticks are in excellent condition.",
+      "size": "Stands about 8 to 10 inches tall",
+      "price": "18",
+      "url": "/images/products/cbk-ltd-1988-teal-patina-candlesticks.jpeg",
+      "sold": false
+    },
+    {
+      "id": 11,
+      "name": "Brass Scuttle with Wooden Handle",
+      "description": "Can be styled as a vase or used as a unique piece to decorate the mantel. If you are still lugging coals to and from a location this is one’s for you 😉",
+      "size": "Approximately 7 inches tall",
+      "price": "12",
+      "url": "/images/products/brass-scuttle-with-wooden-handle.jpeg",
+      "sold": false
     }
   ]
 }
