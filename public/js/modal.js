@@ -53,9 +53,6 @@ function addProductToModal(selectedProduct) {
   if (isSold === "true") {
     productDetail.innerHTML +=
       '<span class="bg-red-100 text-red-800 text-sm font-medium rounded me-2 px-2.5 py-0.5 dark:bg-red-900 dark:text-red-300">Sold</span>';
-  } else {
-    productDetail.innerHTML +=
-      '<span class="bg-green-100 text-green-800 text-sm font-medium rounded me-2 px-2.5 py-0.5 dark:bg-green-900 dark:text-green-300">Available</span>';
   }
 
   if (price) {
