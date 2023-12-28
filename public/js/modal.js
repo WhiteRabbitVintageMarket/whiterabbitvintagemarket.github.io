@@ -3,39 +3,45 @@ function initializeModal() {
   const closeButtons = document.querySelectorAll(".modal-close");
 
   productContainers.forEach((product) =>
-    product.addEventListener("click", launchModal),
+    product.addEventListener("click", showModal),
   );
   closeButtons.forEach((button) =>
     button.addEventListener("click", closeModal),
   );
+
+  document.addEventListener("keydown", (event) => {
+    if (event.code === "Escape") {
+      closeModal();
+    }
+  });
 }
 
-function launchModal(event) {
+function showModal(event) {
   const modalContainer = document.querySelector("#modal-container");
-  modalContainer.classList.remove("hidden");
-  modalContainer.classList.remove("pointer-events-none");
+  modalContainer.showModal();
+  const selectedProduct = document.getElementById(
+    event.currentTarget.getAttribute("id"),
+  );
+  addProductToModal(selectedProduct);
+
   // prevent background scrolling
   // https://css-tricks.com/prevent-page-scrolling-when-a-modal-is-open/
   document.body.classList.add("h-screen", "overflow-y-hidden");
   document.body.style.top = `-${window.scrollY}px`;
   document.body.style.position = "fixed";
-
-  const selectedProduct = document.getElementById(
-    event.currentTarget.getAttribute("id"),
-  );
-  addProductToModal(selectedProduct);
 }
 
 function closeModal() {
   const modalContainer = document.querySelector("#modal-container");
-  modalContainer.classList.add("hidden");
-  modalContainer.classList.add("pointer-events-none");
+  modalContainer.close();
+  removeProductFromModal();
+  // prevent background scrolling
+  // https://css-tricks.com/prevent-page-scrolling-when-a-modal-is-open/
   document.body.classList.remove("h-screen", "overflow-y-hidden");
   const scrollY = document.body.style.top;
   document.body.style.position = "";
   document.body.style.top = "";
   window.scrollTo(0, parseInt(scrollY || "0") * -1);
-  removeProductFromModal();
 }
 
 function addProductToModal(selectedProduct) {
