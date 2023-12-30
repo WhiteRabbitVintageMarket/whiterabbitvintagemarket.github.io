@@ -1,4 +1,5 @@
 import { addProductToCart, isProductInCart } from "/js/cart.mjs";
+import { formatPrice } from "/js/money.mjs";
 
 export function initializeModal() {
   const productContainers = document.querySelectorAll(".product-container");
@@ -91,11 +92,7 @@ function addProductToModal(selectedProduct) {
   }
 
   if (price) {
-    const formattedPrice = new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-    }).format(price);
-
+    const formattedPrice = formatPrice(price);
     const priceContainer = document.createElement("p");
     priceContainer.classList.add("font-bold");
     priceContainer.innerText = `${formattedPrice} + shipping`;
@@ -123,17 +120,17 @@ function addProductToModal(selectedProduct) {
       "py-2.5",
     );
 
-    buttonAddToCart.onclick = (event) => {
-      addProductToCart({ id, name, price, imageUrl });
-      buttonAddToCart.innerText = "Added to Cart";
-      buttonAddToCart.disabled = true;
-    };
-
     if (isProductInCart(id)) {
       buttonAddToCart.innerText = "Added to Cart";
       buttonAddToCart.disabled = true;
     } else {
       buttonAddToCart.innerText = "Add to Cart";
+
+      buttonAddToCart.onclick = (event) => {
+        addProductToCart({ id, quantity: 1 });
+        buttonAddToCart.innerText = "Added to Cart";
+        buttonAddToCart.disabled = true;
+      };
     }
 
     productDetail.appendChild(buttonAddToCart);

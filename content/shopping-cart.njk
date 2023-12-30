@@ -6,5 +6,35 @@ description: Artfully curated vintage items to bring curiousity & intrigue to yo
 
 <div class="mx-6 my-6">
   <h2 class="text-3xl">Shopping Cart</h2>
-  <p class="mt-10">Coming soon...</p>
+  <script>
+    window.allProducts = [
+      {% for product in products %}
+        {
+          id: "{{ product.id }}",
+          name: "{{ product.name | safe }}",
+          size: "{{ product.size }}",
+          price: "{{ product.price }}",
+          url: "{{ product.url }}",
+          sold: "{{ product.sold }}",
+        },
+      {% endfor %}
+    ];
+  </script>
+  <div id="shopping-cart" class="mt-10">
+    <div id="empty-cart" class="hidden">
+      <p>You have nothing in your shopping cart.</p>
+      <div class="my-10">
+        <a href="/shop" class="btn-add-to-cart mt-4 w-full bg-stone-950 custom-text-pure-white hover:bg-stone-700 disabled:bg-stone-700 focus:ring-4 focus:ring-blue-300 focus:outline-none text-lg rounded-lg px-5 py-2.5">Continue Shopping</a>
+      </div>
+    </div>
+
+  </div>
 </div>
+
+<script type="module">
+  import { displayCart } from "/js/cart.mjs";
+  displayCart({ 
+    allProducts: window.allProducts,
+    container: document.querySelector("#shopping-cart")
+  });
+</script>
