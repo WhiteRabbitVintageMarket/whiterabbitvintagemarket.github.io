@@ -60,7 +60,7 @@ export function displayCart({ allProducts, container }) {
 
     const productPrice = document.createElement("div");
     productPrice.innerText = formatPrice(selectedProduct.price);
-    productPrice.classList.add("w-80", "flex", "justify-end");
+    productPrice.classList.add("w-40", "flex", "justify-end", "ml-4");
 
     listItem.appendChild(productImage);
     listItem.appendChild(productName);
