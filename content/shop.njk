@@ -7,26 +7,28 @@ description: Artfully curated vintage items to bring curiousity & intrigue to yo
 <div class="mx-6 my-6">
   <div class="grid grid-cols-1 gap-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
     {% for product in products | sort(true, false, "id") %}
-      <div id="product-id-{{ product.id }}" class="product-container cursor-pointer mb-6"
-        data-name="{{ product.name }}" data-description="{{ product.description }}"
+      <a href="" id="product-id-{{ product.id }}" class="product-container mb-6 focus:ring-4 focus:ring-blue-300 focus:outline-none"
+        data-id="{{ product.id }}" data-name="{{ product.name }}" data-description="{{ product.description }}"
         data-size="{{ product.size }}" data-price="{{ product.price }}"
         data-image-url="{{ product.url }}" data-is-sold="{{ product.sold }}">
         <img src="{{ product.url }}" alt="{{ product.name }}" class="object-cover aspect-square w-full bg-stone-300 {% if product.sold %}opacity-30{% endif %}" {% if loop.index < 4 %}loading="eager"{% else %}loading="lazy"{% endif %}>
-        <p>{{ product.name }}</p>
-        {% if product.price %}
-          <p>${{ product.price }}.00</p>
-        {% endif %}
-      </div>
+        <div class="px-1">
+          <p>{{ product.name }}</p>
+          {% if product.price %}
+            <p>${{ product.price }}.00</p>
+          {% endif %}
+        </div>
+      </a>
     {% endfor %}
   </div>
 </div>
 
 <dialog id="modal-container" class="backdrop:bg-gray-900 backdrop:opacity-50">
   <div class="fixed w-full h-full top-0 left-0 flex items-center justify-center">
-    <article class="bg-white supports-[height:95cqh]:h-[95cqh] supports-[height:95svh]:h-[95svh] w-11/12 md:max-w-4xl mx-auto shadow-lg z-50 rounded overflow-y-auto text-left">
+    <article class="custom-bg-pure-white supports-[height:95cqh]:h-[95cqh] supports-[height:95svh]:h-[95svh] w-11/12 md:max-w-4xl mx-auto shadow-lg z-50 rounded overflow-y-auto text-left">
       <header class="flex justify-between items-start max-h-24 p-4">
         <p class="modal-title text-base md:text-xl"></p>
-        <div class="modal-close cursor-pointer ml-4 z-50">
+        <div id="modal-close" class="cursor-pointer ml-4 z-50">
           <svg class="fill-current" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 18">
             <path d="M14.53 4.53l-1.06-1.06L9 7.94 4.53 3.47 3.47 4.53 7.94 9l-4.47 4.47 1.06 1.06L9 10.06l4.47 4.47 1.06-1.06L10.06 9z"></path>
           </svg>
@@ -43,5 +45,7 @@ description: Artfully curated vintage items to bring curiousity & intrigue to yo
   </div>
 <dialog>
 
-<script src="/js/modal.js"></script>
-<script>initializeModal()</script>
+<script type="module">
+  import { initializeModal } from "/js/modal.mjs";
+  initializeModal();
+</script>
