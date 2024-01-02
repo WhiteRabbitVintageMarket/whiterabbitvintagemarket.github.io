@@ -12,7 +12,6 @@ export function roundTwoDecimals(value) {
 }
 
 export function calculateTotal(productsArray) {
-  console.log(productsArray);
   const total = productsArray.reduce((partialSum, product) => {
     const quantity = product.quantity ?? 1;
     const newTotal =
