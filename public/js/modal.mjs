@@ -1,4 +1,7 @@
-import { addProductToCart, isProductInCart } from "/js/cart.mjs";
+import {
+  addProductToCart,
+  isProductInCart,
+} from "/js/shopping-cart-local-storage.mjs";
 import { formatPrice } from "/js/money.mjs";
 
 export function initializeModal() {
@@ -127,7 +130,7 @@ function addProductToModal(selectedProduct) {
       buttonAddToCart.innerText = "Add to Cart";
 
       buttonAddToCart.onclick = (event) => {
-        addProductToCart({ id, quantity: 1 });
+        addProductToCart(id);
         buttonAddToCart.innerText = "Added to Cart";
         buttonAddToCart.disabled = true;
       };
