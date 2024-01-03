@@ -6,35 +6,54 @@ description: Artfully curated vintage items to bring curiousity & intrigue to yo
 
 <div class="mx-6 my-6">
   <h2 class="text-3xl">Shopping Cart</h2>
-  <script>
-    window.allProducts = [
-      {% for product in products %}
-        {
-          id: "{{ product.id }}",
-          name: "{{ product.name | safe }}",
-          size: "{{ product.size }}",
-          price: "{{ product.price }}",
-          url: "{{ product.url }}",
-          sold: "{{ product.sold }}",
-        },
-      {% endfor %}
-    ];
-  </script>
-  <div id="shopping-cart" class="mt-10">
-    <div id="empty-cart" class="hidden">
-      <p>You have nothing in your shopping cart.</p>
-      <div class="my-10">
-        <a href="/shop" class="btn-add-to-cart mt-4 w-full bg-stone-950 custom-text-pure-white hover:bg-stone-700 disabled:bg-stone-700 focus:ring-4 focus:ring-blue-300 focus:outline-none text-lg rounded-lg px-5 py-2.5">Continue Shopping</a>
-      </div>
-    </div>
 
-  </div>
+  <template id="shopping-cart-list-item-template">
+    <li class="flex flex-wrap justify-start items-start min-h-32 my-4 pb-4 border-b border-stone-300">
+      <img class="w-32 object-cover aspect-square bg-stone-300 mr-4" src="">
+      <p class="grow basis-1/5">
+        <slot name="product-name">PRODUCT NAME</slot>
+      </p>
+      <div class="w-full sm:w-40 order-2 sm:order-none flex justify-end ml-4">
+        <slot name="product-price">PRODUCT PRICE</slot>
+      </div>
+      <button type="button" class="ml-6">
+        <svg class="fill-current" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 18">
+          <path d="M14.53 4.53l-1.06-1.06L9 7.94 4.53 3.47 3.47 4.53 7.94 9l-4.47 4.47 1.06 1.06L9 10.06l4.47 4.47 1.06-1.06L10.06 9z"></path>
+        </svg>
+      </button>
+    </li>
+  </template>
+
+  <template id="shopping-cart-empty-template">
+    <p>You have nothing in your shopping cart.</p>
+    <div class="my-10">
+      <a href="/shop" class="mt-4 w-full bg-stone-950 custom-text-pure-white hover:bg-stone-700 disabled:bg-stone-700 focus:ring-4 focus:ring-blue-300 focus:outline-none text-lg rounded-lg px-5 py-2.5">Continue Shopping</a>
+    </div>
+  </template>
+
+  <template id="shopping-cart-summary-template">
+    <div class="flex justify-between sm:justify-end ml-4">
+      <p class="sm:mr-32">Subtotal</p>
+      <p><slot name="subtotal">SUBTOTAL</slot></p>
+    </div>
+  </template>
+
+  <shopping-cart class="block mt-10"></shopping-cart>
 </div>
 
-<script type="module">
-  import { displayCart } from "/js/cart.mjs";
-  displayCart({ 
-    allProducts: window.allProducts,
-    container: document.querySelector("#shopping-cart")
-  });
+<script>
+  window.allProducts = [
+    {% for product in products %}
+      {
+        id: "{{ product.id }}",
+        name: "{{ product.name | safe }}",
+        size: "{{ product.size }}",
+        price: "{{ product.price }}",
+        url: "{{ product.url }}",
+        sold: "{{ product.sold }}",
+      },
+    {% endfor %}
+  ];
 </script>
+
+<script type="module" src="/js/shopping-cart.mjs"></script>
