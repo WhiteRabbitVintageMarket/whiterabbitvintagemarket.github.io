@@ -17,6 +17,14 @@
     {{ css | cssmin | safe }}
   </style>
   <link href="/css/style.out.css" rel="stylesheet">
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-6S64W3FTQQ"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-6S64W3FTQQ');
+  </script>
 </head>
 <body class="flex min-h-full custom-font-body custom-bg-pure-white text-stone-950">
   <div class="flex-auto min-h-screen">
@@ -70,14 +78,5 @@
     </footer>
   </div>
 <script src="/js/shopping-cart-count.mjs" type="module"></script>
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-6S64W3FTQQ"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-6S64W3FTQQ');
-</script>
 </body>
 </html>
