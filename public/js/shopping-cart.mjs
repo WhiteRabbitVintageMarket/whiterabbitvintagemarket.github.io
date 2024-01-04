@@ -53,7 +53,7 @@ class ShoppingCart extends HTMLElement {
     ).content;
     const listItem = shoppingCartListItemTemplate.cloneNode(true);
 
-    listItem.querySelector("img").src = url;
+    listItem.querySelector('slot[name="product-image"] img').src = url;
     listItem.querySelector('slot[name="product-name"]').innerText = name;
     listItem.querySelector('slot[name="product-price"]').innerText =
       formatPrice(price);

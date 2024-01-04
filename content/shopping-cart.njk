@@ -9,7 +9,9 @@ description: Artfully curated vintage items to bring curiousity & intrigue to yo
 
   <template id="shopping-cart-list-item-template">
     <li class="flex flex-wrap justify-start items-start min-h-32 my-4 pb-4 border-b border-stone-300">
-      <img class="w-32 object-cover aspect-square bg-stone-300 mr-4" src="">
+      <slot name="product-image">
+        <img class="w-32 object-cover aspect-square bg-stone-300 mr-4" src="">
+      </slot>
       <p class="grow basis-1/5">
         <slot name="product-name">PRODUCT NAME</slot>
       </p>
