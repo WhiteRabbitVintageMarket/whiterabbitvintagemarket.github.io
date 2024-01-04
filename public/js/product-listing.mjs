@@ -1,5 +1,5 @@
 import {
-  addProductToCart,
+  addProductToCart as addProductToCartLocalStorage,
   isProductInCart,
 } from "/js/shopping-cart-local-storage.mjs";
 import { formatPrice } from "/js/money.mjs";
@@ -65,7 +65,7 @@ class ProductListing extends HTMLElement {
       buttonAddToCart.disabled = true;
     } else {
       buttonAddToCart.onclick = () => {
-        addProductToCart(this.id);
+        this.addProductToCart();
         buttonAddToCart.innerText = "Added to Cart";
         buttonAddToCart.disabled = true;
       };
@@ -76,6 +76,25 @@ class ProductListing extends HTMLElement {
     };
 
     this.appendChild(modal);
+  }
+
+  addProductToCart() {
+    addProductToCartLocalStorage(this.id);
+    this.logEventAddToCart();
+  }
+
+  logEventAddToCart() {
+    gtag("event", "add_to_cart", {
+      currency: "USD",
+      value: Number(this.price),
+      items: [
+        {
+          item_id: this.id,
+          item_name: this.name,
+          quantity: 1,
+        },
+      ],
+    });
   }
 
   closeModal() {

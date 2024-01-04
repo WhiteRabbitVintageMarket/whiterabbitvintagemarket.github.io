@@ -8,10 +8,11 @@ import { formatPrice, calculateTotal } from "/js/money.mjs";
 class ShoppingCart extends HTMLElement {
   constructor() {
     super();
-    this.selectedProducts = this.getSelectedProducts();
+    this.selectedProducts = this.getSelectedProductsFromLocalStorage();
+    this.renderShoppingCart();
   }
 
-  getSelectedProducts() {
+  getSelectedProductsFromLocalStorage() {
     const { products: cartProducts } = getCartLocalStorage();
 
     return window.allProducts.filter((product) => {
@@ -20,8 +21,9 @@ class ShoppingCart extends HTMLElement {
     });
   }
 
-  set selectedProducts(products) {
+  renderShoppingCart() {
     this.innerHTML = "";
+    const products = this.selectedProducts;
 
     if (products.length === 0) {
       const shoppingCartEmptyTemplate = document.getElementById(
@@ -45,6 +47,7 @@ class ShoppingCart extends HTMLElement {
 
     this.appendChild(unorderedList);
     this.renderSummary(products);
+    this.logEventViewCart();
   }
 
   renderProduct({ id, url, name, price, container }) {
@@ -60,7 +63,9 @@ class ShoppingCart extends HTMLElement {
 
     listItem.querySelector("button").onclick = (event) => {
       removeProductFromCart(id);
-      this.selectedProducts = this.getSelectedProducts();
+      this.logEventRemoveFromCart({ id, name, price });
+      this.selectedProducts = this.getSelectedProductsFromLocalStorage();
+      this.renderShoppingCart();
     };
 
     container.appendChild(listItem);
@@ -75,6 +80,39 @@ class ShoppingCart extends HTMLElement {
     summary.querySelector('slot[name="subtotal"]').innerText =
       formatPrice(subTotal);
     this.appendChild(summary);
+  }
+
+  logEventViewCart() {
+    const itemsForGoogleTag = this.selectedProducts.map(
+      ({ id, name, price }) => {
+        return {
+          item_id: id,
+          item_name: name,
+          price: Number(price),
+          quantity: 1,
+        };
+      },
+    );
+
+    gtag("event", "view_cart", {
+      currency: "USD",
+      value: calculateTotal(this.selectedProducts),
+      items: itemsForGoogleTag,
+    });
+  }
+
+  logEventRemoveFromCart({ id, name, price }) {
+    gtag("event", "remove_from_cart", {
+      currency: "USD",
+      value: Number(price),
+      items: [
+        {
+          item_id: id,
+          item_name: name,
+          quantity: 1,
+        },
+      ],
+    });
   }
 }
 
