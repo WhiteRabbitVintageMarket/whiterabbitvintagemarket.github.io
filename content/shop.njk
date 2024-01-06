@@ -5,34 +5,26 @@ description: Artfully curated vintage items to bring curiousity & intrigue to yo
 ---
 
 <div class="mx-6 my-6">
-  <div class="grid grid-cols-1 gap-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
-    {% for product in products | sort(true, false, "id") %}
-      <product-listing
-        id="{{ product.id }}"
-        name="{{ product.name }}"
-        description="{{ product.description }}"
-        size="{{ product.size }}"
-        price="{{ product.price }}"
-        image-url="{{ product.url }}"
-        is-sold="{{ product.sold }}">
-        <a href="" class="block h-full mb-6 focus:ring-4 focus:ring-blue-300 focus:outline-none">
-          <div class="relative">
-            <img src="{{ product.url }}" alt="{{ product.name }}" class="object-cover aspect-square w-full bg-stone-300" {% if loop.index < 4 %}loading="eager"{% else %}loading="lazy"{% endif %}>
-            {% if product.sold %}
-              <div class="absolute top-5 right-0 bg-stone-950 custom-text-pure-white uppercase p-2">Sold Out</div>
-            {% endif %}
-          </div>
-          <div class="px-1">
-            <p>{{ product.name }}</p>
-            {% if product.price %}
-              <p>${{ product.price }}.00</p>
-            {% endif %}
-          </div>
-        </a>
-      </product-listing>
-    {% endfor %}
-  </div>
+  <product-listings class="grid grid-cols-1 gap-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
+  </product-listings>
 </div>
+
+<template id="product-listing-template">
+  <a href="" class="block h-full mb-6 focus:ring-4 focus:ring-blue-300 focus:outline-none">
+    <div class="relative">
+      <slot name="product-image">
+        <img src="" alt="" class="object-cover aspect-square w-full bg-stone-300" loading="lazy">
+      </slot>
+      <slot name="product-sold">
+        <div class="absolute top-5 right-0 bg-stone-950 custom-text-pure-white uppercase p-2">Sold Out</div>
+      </slot>
+    </div>
+    <div class="px-1">
+      <slot name="product-name" class="block">PRODUCT NAME</slot>
+      <slot name="product-price" class="block">PRODUCT PRICE</slot>
+    </div>
+  </a>
+</template>
 
 <template id="modal-template">
   <dialog id="modal-container" class="backdrop:bg-gray-900 backdrop:opacity-50">
@@ -65,4 +57,5 @@ description: Artfully curated vintage items to bring curiousity & intrigue to yo
   </dialog>
 </template>
 
+<script type="module" src="/js/product-listings.mjs"></script>
 <script type="module" src="/js/product-listing.mjs"></script>
