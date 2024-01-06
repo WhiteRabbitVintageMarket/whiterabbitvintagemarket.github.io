@@ -16,7 +16,12 @@ description: Artfully curated vintage items to bring curiousity & intrigue to yo
         image-url="{{ product.url }}"
         is-sold="{{ product.sold }}">
         <a href="" class="block h-full mb-6 focus:ring-4 focus:ring-blue-300 focus:outline-none">
-          <img src="{{ product.url }}" alt="{{ product.name }}" class="object-cover aspect-square w-full bg-stone-300 {% if product.sold %}opacity-30{% endif %}" {% if loop.index < 4 %}loading="eager"{% else %}loading="lazy"{% endif %}>
+          <div class="relative">
+            <img src="{{ product.url }}" alt="{{ product.name }}" class="object-cover aspect-square w-full bg-stone-300" {% if loop.index < 4 %}loading="eager"{% else %}loading="lazy"{% endif %}>
+            {% if product.sold %}
+              <div class="absolute top-5 right-0 bg-stone-950 custom-text-pure-white uppercase p-2">Sold Out</div>
+            {% endif %}
+          </div>
           <div class="px-1">
             <p>{{ product.name }}</p>
             {% if product.price %}
