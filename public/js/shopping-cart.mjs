@@ -61,7 +61,7 @@ class ShoppingCart extends HTMLElement {
     listItem.querySelector('slot[name="product-price"]').innerText =
       formatPrice(price);
 
-    listItem.querySelector("button").onclick = (event) => {
+    listItem.querySelector("button").onclick = () => {
       removeProductFromCart(id);
       this.logEventRemoveFromCart({ id, name, price });
       this.selectedProducts = this.getSelectedProductsFromLocalStorage();
