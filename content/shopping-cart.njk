@@ -43,19 +43,4 @@ description: Artfully curated vintage items to bring curiousity & intrigue to yo
   <shopping-cart class="block mt-10"></shopping-cart>
 </div>
 
-<script>
-  window.allProducts = [
-    {% for product in products %}
-      {
-        id: "{{ product.id }}",
-        name: "{{ product.name | safe }}",
-        size: "{{ product.size }}",
-        price: "{{ product.price }}",
-        url: "{{ product.url }}",
-        sold: "{{ product.sold }}",
-      },
-    {% endfor %}
-  ];
-</script>
-
 <script type="module" src="/js/shopping-cart.mjs"></script>

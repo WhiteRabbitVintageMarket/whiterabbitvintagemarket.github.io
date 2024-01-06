@@ -17,6 +17,32 @@ class ProductListing extends HTMLElement {
 
     const isSoldString = this.getAttribute("is-sold");
     this.isSold = isSoldString === "true";
+
+    this.renderProductListing();
+  }
+
+  renderProductListing() {
+    const productListingTemplate = document.getElementById(
+      "product-listing-template",
+    ).content;
+    const productListing = productListingTemplate.cloneNode(true);
+
+    productListing.querySelector('slot[name="product-image"] img').src =
+      this.imageUrl;
+    productListing.querySelector('slot[name="product-image"] img').alt =
+      this.name;
+    productListing.querySelector('slot[name="product-name"]').innerText =
+      this.name;
+
+    const price = this.price ? formatPrice(this.price) : "";
+    productListing.querySelector('slot[name="product-price"]').innerText =
+      price;
+
+    if (this.isSold === false) {
+      productListing.querySelector('slot[name="product-sold"]').innerHTML = "";
+    }
+
+    this.appendChild(productListing);
   }
 
   showModal(event) {

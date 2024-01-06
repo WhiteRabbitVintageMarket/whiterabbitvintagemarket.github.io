@@ -8,24 +8,62 @@ import { formatPrice, calculateTotal } from "/js/money.mjs";
 class ShoppingCart extends HTMLElement {
   constructor() {
     super();
-    this.selectedProducts = this.getSelectedProductsFromLocalStorage();
+  }
+
+  static get observedAttributes() {
+    return ["loading", "products"];
+  }
+
+  get loading() {
+    return JSON.parse(this.getAttribute("loading"));
+  }
+
+  set loading(value) {
+    this.setAttribute("loading", JSON.stringify(value));
+  }
+
+  get products() {
+    return JSON.parse(this.getAttribute("products"));
+  }
+
+  set products(value) {
+    this.setAttribute("products", JSON.stringify(value));
+  }
+
+  async fetchProducts() {
+    this.loading = true;
+    const response = await fetch("/data/products.json");
+    const json = await response.json();
+    this.products = json;
+    this.loading = false;
+  }
+
+  async connectedCallback() {
+    await this.fetchProducts();
+  }
+
+  attributeChangedCallback() {
     this.renderShoppingCart();
   }
 
   getSelectedProductsFromLocalStorage() {
     const { products: cartProducts } = getCartLocalStorage();
 
-    return window.allProducts.filter((product) => {
+    return this.products.filter((product) => {
       const result = cartProducts.find(({ id }) => id === product.id);
       return Boolean(result);
     });
   }
 
   renderShoppingCart() {
-    this.innerHTML = "";
-    const products = this.selectedProducts;
+    if (!this.products || this.products.length === 0) {
+      return;
+    }
 
-    if (products.length === 0) {
+    this.innerHTML = "";
+    const selectedProducts = this.getSelectedProductsFromLocalStorage();
+
+    if (selectedProducts.length === 0) {
       const shoppingCartEmptyTemplate = document.getElementById(
         "shopping-cart-empty-template",
       ).content;
@@ -35,7 +73,7 @@ class ShoppingCart extends HTMLElement {
     const unorderedList = document.createElement("ul");
     unorderedList.id = "product-list";
 
-    for (const { id, url, name, price } of products) {
+    for (const { id, url, name, price } of selectedProducts) {
       this.renderProduct({
         container: unorderedList,
         id,
@@ -46,8 +84,8 @@ class ShoppingCart extends HTMLElement {
     }
 
     this.appendChild(unorderedList);
-    this.renderSummary(products);
-    this.logEventViewCart();
+    this.renderSummary(selectedProducts);
+    this.logEventViewCart(selectedProducts);
   }
 
   renderProduct({ id, url, name, price, container }) {
@@ -64,7 +102,6 @@ class ShoppingCart extends HTMLElement {
     listItem.querySelector("button").onclick = () => {
       removeProductFromCart(id);
       this.logEventRemoveFromCart({ id, name, price });
-      this.selectedProducts = this.getSelectedProductsFromLocalStorage();
       this.renderShoppingCart();
     };
 
@@ -82,21 +119,19 @@ class ShoppingCart extends HTMLElement {
     this.appendChild(summary);
   }
 
-  logEventViewCart() {
-    const itemsForGoogleTag = this.selectedProducts.map(
-      ({ id, name, price }) => {
-        return {
-          item_id: id,
-          item_name: name,
-          price: Number(price),
-          quantity: 1,
-        };
-      },
-    );
+  logEventViewCart(products) {
+    const itemsForGoogleTag = products.map(({ id, name, price }) => {
+      return {
+        item_id: id,
+        item_name: name,
+        price: Number(price),
+        quantity: 1,
+      };
+    });
 
     gtag("event", "view_cart", {
       currency: "USD",
-      value: calculateTotal(this.selectedProducts),
+      value: calculateTotal(products),
       items: itemsForGoogleTag,
     });
   }
