@@ -54,8 +54,10 @@ class ProductListing extends HTMLElement {
     }
 
     this.addModalContent();
-    this.updateUrlQueryString({ "product-id": this.id });
     this.querySelector("#modal-container").showModal();
+
+    this.updateUrlQueryString({ "product-id": this.id });
+    this.logEventViewItem();
 
     this.addEventListener("keydown", this.closeModalWithEscapeKey);
 
@@ -121,6 +123,20 @@ class ProductListing extends HTMLElement {
   addProductToCart() {
     addProductToCartLocalStorage(this.id);
     this.logEventAddToCart();
+  }
+
+  logEventViewItem() {
+    gtag("event", "view_item", {
+      currency: "USD",
+      value: Number(this.price),
+      items: [
+        {
+          item_id: this.id,
+          item_name: this.name,
+          quantity: 1,
+        },
+      ],
+    });
   }
 
   logEventAddToCart() {
