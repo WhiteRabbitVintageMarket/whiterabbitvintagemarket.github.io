@@ -54,6 +54,7 @@ class ProductListing extends HTMLElement {
     }
 
     this.addModalContent();
+    this.updateUrlQueryString({ "product-id": this.id });
     this.querySelector("#modal-container").showModal();
 
     this.addEventListener("keydown", this.closeModalWithEscapeKey);
@@ -104,6 +105,19 @@ class ProductListing extends HTMLElement {
     this.appendChild(modal);
   }
 
+  updateUrlQueryString({ "product-id": productId }) {
+    const { pathname, search } = new URL(window.location.href);
+    const params = new URLSearchParams(search);
+    if (productId) {
+      params.set("product-id", productId);
+    } else {
+      params.delete("product-id");
+    }
+
+    const newUrl = params.size ? `${pathname}?${params.toString()}` : pathname;
+    history.replaceState(null, null, newUrl);
+  }
+
   addProductToCart() {
     addProductToCartLocalStorage(this.id);
     this.logEventAddToCart();
@@ -131,6 +145,7 @@ class ProductListing extends HTMLElement {
 
     modalContainer.close();
     modalContainer.remove();
+    this.updateUrlQueryString({ "product-id": "" });
 
     this.removeEventListener("keydown", this.closeModalWithEscapeKey);
 
@@ -154,6 +169,12 @@ class ProductListing extends HTMLElement {
       "click",
       this.showModal.bind(this),
     );
+
+    const params = new URLSearchParams(window.location.search);
+    const productId = params.get("product-id");
+    if (productId === this.id) {
+      this.querySelector("a").click();
+    }
   }
 }
 
