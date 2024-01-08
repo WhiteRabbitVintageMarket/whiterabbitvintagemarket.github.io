@@ -27,6 +27,8 @@ class ProductListing extends HTMLElement {
     ).content;
     const productListing = productListingTemplate.cloneNode(true);
 
+    productListing.querySelector("a").href = this.getProductUrl(this.id);
+
     productListing.querySelector('slot[name="product-image"] img').src =
       this.imageUrl;
     productListing.querySelector('slot[name="product-image"] img').alt =
@@ -107,7 +109,7 @@ class ProductListing extends HTMLElement {
     this.appendChild(modal);
   }
 
-  updateUrlQueryString({ "product-id": productId }) {
+  getProductUrl(productId) {
     const { pathname, search } = new URL(window.location.href);
     const params = new URLSearchParams(search);
     if (productId) {
@@ -116,7 +118,12 @@ class ProductListing extends HTMLElement {
       params.delete("product-id");
     }
 
-    const newUrl = params.size ? `${pathname}?${params.toString()}` : pathname;
+    return params.size ? `${pathname}?${params.toString()}` : pathname;
+  }
+
+  updateUrlQueryString(queryParams) {
+    // product-id is currently the only dynamic query param
+    const newUrl = this.getProductUrl(queryParams["product-id"]);
     history.replaceState(null, null, newUrl);
   }
 
