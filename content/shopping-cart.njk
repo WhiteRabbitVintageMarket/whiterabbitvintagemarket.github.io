@@ -16,7 +16,7 @@ description: Artfully curated vintage items to bring curiousity & intrigue to yo
         <slot name="product-name">PRODUCT NAME</slot>
       </p>
       <div class="w-full sm:w-40 order-2 sm:order-none flex justify-end ml-4">
-        <slot name="product-price">PRODUCT PRICE</slot>
+        <slot name="product-amount">PRODUCT PRICE</slot>
       </div>
       <button type="button" class="ml-6">
         <svg class="fill-current" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 18">
@@ -37,6 +37,14 @@ description: Artfully curated vintage items to bring curiousity & intrigue to yo
     <div class="flex justify-between sm:justify-end ml-4">
       <p class="sm:mr-32">Subtotal</p>
       <p><slot name="subtotal">SUBTOTAL</slot></p>
+    </div>
+  </template>
+
+  <template id="loading-spinner-template">
+    <div class="flex justify-center my-4">
+      <div id="loading-spinner" class="animate-spin inline-block w-8 h-8 border-[3px] border-current border-t-transparent text-stone-700 rounded-full" role="status" aria-label="loading">
+        <span class="sr-only">Loading...</span>
+      </div>
     </div>
   </template>
 

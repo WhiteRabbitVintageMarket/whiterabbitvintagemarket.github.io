@@ -19,6 +19,7 @@ class ShoppingCart extends HTMLElement {
   }
 
   set loading(value) {
+    value === true ? this.showLoadingSpinner() : this.hideLoadingSpinner();
     this.setAttribute("loading", JSON.stringify(value));
   }
 
@@ -30,11 +31,28 @@ class ShoppingCart extends HTMLElement {
     this.setAttribute("products", JSON.stringify(value));
   }
 
+  showLoadingSpinner() {
+    const shoppingCartLoadingSpinnerTemplate = document.getElementById(
+      "loading-spinner-template",
+    ).content;
+    const loadingSpinner = shoppingCartLoadingSpinnerTemplate.cloneNode(true);
+    this.appendChild(loadingSpinner);
+  }
+
+  hideLoadingSpinner() {
+    const loadingSpinner = document.querySelector("#loading-spinner");
+    if (loadingSpinner) {
+      loadingSpinner.remove();
+    }
+  }
+
   async fetchProducts() {
     this.loading = true;
-    const response = await fetch("/data/products.json");
+    const response = await fetch(
+      "https://white-rabbit-server.fly.dev/api/products",
+    );
     const json = await response.json();
-    this.products = json;
+    this.products = json.data;
     this.loading = false;
   }
 
@@ -42,17 +60,34 @@ class ShoppingCart extends HTMLElement {
     await this.fetchProducts();
   }
 
-  attributeChangedCallback() {
-    this.renderShoppingCart();
+  attributeChangedCallback(name) {
+    if (name === "products") {
+      this.renderShoppingCart();
+    }
   }
 
   getSelectedProductsFromLocalStorage() {
     const { products: cartProducts } = getCartLocalStorage();
 
-    return this.products.filter((product) => {
-      const result = cartProducts.find(({ id }) => id === product.id);
+    const foundProducts = this.products.filter((product) => {
+      const result = cartProducts.find(({ id }) => {
+        const isSold = product.is_sold === "true";
+        return id === product.sku && isSold === false;
+      });
       return Boolean(result);
     });
+
+    // remove any products from cart that are not found
+    if (cartProducts.length !== foundProducts.length) {
+      for (const cartProduct of cartProducts) {
+        const result = this.products.find(({ sku }) => cartProduct.id === sku);
+        if (!result) {
+          removeProductFromCart(cartProduct.id);
+        }
+      }
+    }
+
+    return foundProducts;
   }
 
   renderShoppingCart() {
@@ -73,13 +108,13 @@ class ShoppingCart extends HTMLElement {
     const unorderedList = document.createElement("ul");
     unorderedList.id = "product-list";
 
-    for (const { id, url, name, price } of selectedProducts) {
+    for (const { sku, image_url: imageUrl, name, amount } of selectedProducts) {
       this.renderProduct({
         container: unorderedList,
-        id,
-        url,
+        sku,
+        imageUrl,
         name,
-        price,
+        amount,
       });
     }
 
@@ -88,20 +123,25 @@ class ShoppingCart extends HTMLElement {
     this.logEventViewCart(selectedProducts);
   }
 
-  renderProduct({ id, url, name, price, container }) {
+  renderProduct({ sku, imageUrl, name, amount, container }) {
     const shoppingCartListItemTemplate = document.getElementById(
       "shopping-cart-list-item-template",
     ).content;
     const listItem = shoppingCartListItemTemplate.cloneNode(true);
 
-    listItem.querySelector('slot[name="product-image"] img').src = url;
+    const imageElement = listItem.querySelector(
+      'slot[name="product-image"] img',
+    );
+    imageElement.src = imageUrl;
+    imageElement.alt = name;
+
     listItem.querySelector('slot[name="product-name"]').innerText = name;
-    listItem.querySelector('slot[name="product-price"]').innerText =
-      formatPrice(price);
+    listItem.querySelector('slot[name="product-amount"]').innerText =
+      formatPrice(amount);
 
     listItem.querySelector("button").onclick = () => {
-      removeProductFromCart(id);
-      this.logEventRemoveFromCart({ id, name, price });
+      removeProductFromCart(sku);
+      this.logEventRemoveFromCart({ sku, name, amount });
       this.renderShoppingCart();
     };
 
@@ -120,11 +160,11 @@ class ShoppingCart extends HTMLElement {
   }
 
   logEventViewCart(products) {
-    const itemsForGoogleTag = products.map(({ id, name, price }) => {
+    const itemsForGoogleTag = products.map(({ sku, name, amount }) => {
       return {
-        item_id: id,
+        item_id: sku,
         item_name: name,
-        price: Number(price),
+        price: Number(amount),
         quantity: 1,
       };
     });
@@ -136,13 +176,13 @@ class ShoppingCart extends HTMLElement {
     });
   }
 
-  logEventRemoveFromCart({ id, name, price }) {
+  logEventRemoveFromCart({ sku, name, amount }) {
     gtag("event", "remove_from_cart", {
       currency: "USD",
-      value: Number(price),
+      value: Number(amount),
       items: [
         {
-          item_id: id,
+          item_id: sku,
           item_name: name,
           quantity: 1,
         },
