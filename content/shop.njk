@@ -21,7 +21,7 @@ description: Artfully curated vintage items to bring curiousity & intrigue to yo
     </div>
     <div class="px-1">
       <slot name="product-name" class="block">PRODUCT NAME</slot>
-      <slot name="product-price" class="block">PRODUCT PRICE</slot>
+      <slot name="product-amount" class="block">PRODUCT AMOUNT</slot>
     </div>
   </a>
 </template>
@@ -45,7 +45,7 @@ description: Artfully curated vintage items to bring curiousity & intrigue to yo
               <img src="" alt="" class="object-cover sm:h-[75vh]">
             </slot>
             <div name="product-detail" class="w-full px-4 text-lg">
-              <slot name="product-price" class="block font-bold">PRICE</slot>
+              <slot name="product-amount" class="block font-bold">AMOUNT</slot>
               <button id="btn-add-to-cart" type="button" autofocus class="mt-4 w-full bg-stone-950 custom-text-pure-white hover:bg-stone-700 disabled:bg-stone-700 focus:ring-4 focus:ring-blue-300 focus:outline-none text-lg rounded-lg px-5 py-2.5">Add to Cart</button>
               <slot name="product-description" class="block my-4">DESCRIPTION</slot>
               <slot name="product-size" class="block my-4">SIZE</slot>
@@ -55,6 +55,14 @@ description: Artfully curated vintage items to bring curiousity & intrigue to yo
       </article>
     </div>
   </dialog>
+</template>
+
+<template id="loading-spinner-template">
+  <div class="flex justify-center my-4 sm:col-span-2 md:col-span-3 lg:col-span-5">
+    <div id="loading-spinner" class="animate-spin inline-block w-8 h-8 border-[3px] border-current border-t-transparent text-stone-700 rounded-full" role="status" aria-label="loading">
+      <span class="sr-only">Loading...</span>
+    </div>
+  </div>
 </template>
 
 <script type="module" src="/js/product-listings.mjs"></script>

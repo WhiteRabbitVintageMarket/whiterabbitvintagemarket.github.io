@@ -8,10 +8,10 @@ class ProductListing extends HTMLElement {
   constructor() {
     super();
 
-    this.id = this.getAttribute("id");
+    this.sku = this.getAttribute("sku");
     this.name = this.getAttribute("name");
     this.description = this.getAttribute("description");
-    this.price = this.getAttribute("price");
+    this.amount = this.getAttribute("amount");
     this.size = this.getAttribute("size");
     this.imageUrl = this.getAttribute("image-url");
 
@@ -27,18 +27,19 @@ class ProductListing extends HTMLElement {
     ).content;
     const productListing = productListingTemplate.cloneNode(true);
 
-    productListing.querySelector("a").href = this.getProductUrl(this.id);
+    productListing.querySelector("a").href = this.getProductUrl(this.sku);
 
-    productListing.querySelector('slot[name="product-image"] img').src =
-      this.imageUrl;
-    productListing.querySelector('slot[name="product-image"] img').alt =
-      this.name;
+    const imageElement = productListing.querySelector(
+      'slot[name="product-image"] img',
+    );
+    imageElement.src = this.imageUrl;
+    imageElement.alt = this.name;
+
     productListing.querySelector('slot[name="product-name"]').innerText =
       this.name;
 
-    const price = this.price ? formatPrice(this.price) : "";
-    productListing.querySelector('slot[name="product-price"]').innerText =
-      price;
+    productListing.querySelector('slot[name="product-amount"]').innerText =
+      formatPrice(this.amount);
 
     if (this.isSold === false) {
       productListing.querySelector('slot[name="product-sold"]').innerHTML = "";
@@ -58,7 +59,7 @@ class ProductListing extends HTMLElement {
     this.addModalContent();
     this.querySelector("#modal-container").showModal();
 
-    this.updateUrlQueryString({ "product-id": this.id });
+    this.updateUrlQueryString({ "product-id": this.sku });
     this.logEventViewItem();
 
     this.addEventListener("keydown", this.closeModalWithEscapeKey);
@@ -80,8 +81,10 @@ class ProductListing extends HTMLElement {
     modal.querySelector('slot[name="modal-title"]').innerText = this.name;
     modal.querySelector('slot[name="product-image"] img').src = this.imageUrl;
 
-    const priceText = this.price ? `${formatPrice(this.price)} + shipping` : "";
-    modal.querySelector('slot[name="product-price"]').innerText = priceText;
+    const amountText = this.amount
+      ? `${formatPrice(this.amount)} + shipping`
+      : "";
+    modal.querySelector('slot[name="product-amount"]').innerText = amountText;
 
     modal.querySelector('slot[name="product-description"]').innerText =
       this.description;
@@ -91,7 +94,7 @@ class ProductListing extends HTMLElement {
     if (this.isSold) {
       buttonAddToCart.innerText = "Sold Out";
       buttonAddToCart.disabled = true;
-    } else if (isProductInCart(this.id)) {
+    } else if (isProductInCart(this.sku)) {
       buttonAddToCart.innerText = "Added to Cart";
       buttonAddToCart.disabled = true;
     } else {
@@ -128,17 +131,17 @@ class ProductListing extends HTMLElement {
   }
 
   addProductToCart() {
-    addProductToCartLocalStorage(this.id);
+    addProductToCartLocalStorage(this.sku);
     this.logEventAddToCart();
   }
 
   logEventViewItem() {
     gtag("event", "view_item", {
       currency: "USD",
-      value: Number(this.price),
+      value: Number(this.amount),
       items: [
         {
-          item_id: this.id,
+          item_id: this.sku,
           item_name: this.name,
           quantity: 1,
         },
@@ -149,10 +152,10 @@ class ProductListing extends HTMLElement {
   logEventAddToCart() {
     gtag("event", "add_to_cart", {
       currency: "USD",
-      value: Number(this.price),
+      value: Number(this.amount),
       items: [
         {
-          item_id: this.id,
+          item_id: this.sku,
           item_name: this.name,
           quantity: 1,
         },
@@ -195,7 +198,7 @@ class ProductListing extends HTMLElement {
 
     const params = new URLSearchParams(window.location.search);
     const productId = params.get("product-id");
-    if (productId === this.id) {
+    if (productId === this.sku) {
       this.querySelector("a").click();
     }
   }
