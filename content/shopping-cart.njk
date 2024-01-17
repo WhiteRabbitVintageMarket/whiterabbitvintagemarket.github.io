@@ -34,8 +34,8 @@ description: Artfully curated vintage items to bring curiousity & intrigue to yo
   </template>
 
   <template id="shopping-cart-summary-template">
-    <div class="flex justify-between sm:justify-end ml-4">
-      <p class="sm:mr-32">Subtotal</p>
+    <div class="flex justify-between sm:justify-end">
+      <p class="sm:mr-72">Subtotal</p>
       <p><slot name="subtotal">SUBTOTAL</slot></p>
     </div>
   </template>
@@ -49,6 +49,12 @@ description: Artfully curated vintage items to bring curiousity & intrigue to yo
   </template>
 
   <shopping-cart class="block mt-10"></shopping-cart>
+
+  <div class="mt-8 flex sm:justify-end">
+    <paypal-buttons class="block grow sm:grow-0 sm:min-w-96"></paypal-buttons>
+  </div>
 </div>
 
 <script type="module" src="/js/shopping-cart.mjs"></script>
+<script src="https://www.paypal.com/sdk/js?client-id=AUhhngQZuA196XU2_zVKjhX_fteqT__ww54meamPC7hLSgGlA8mZG0ig_6lDiJgUvCxP4Sxm2F6qBexC&components=buttons&enable-funding=venmo"></script>
+<script type="module" src="/js/paypal-buttons.mjs"></script>

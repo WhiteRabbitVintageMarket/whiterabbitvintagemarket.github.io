@@ -1136,8 +1136,8 @@ video {
     grid-column: span 2 / span 2;
   }
 
-  .sm\:mr-32 {
-    margin-right: 8rem;
+  .sm\:mr-72 {
+    margin-right: 18rem;
   }
 
   .sm\:h-\[75vh\] {
@@ -1153,12 +1153,20 @@ video {
     width: 10rem;
   }
 
+  .sm\:min-w-96 {
+    min-width: 24rem;
+  }
+
   .sm\:max-w-2xl {
     max-width: 42rem;
   }
 
   .sm\:max-w-3xl {
     max-width: 48rem;
+  }
+
+  .sm\:grow-0 {
+    flex-grow: 0;
   }
 
   .sm\:grid-cols-2 {
