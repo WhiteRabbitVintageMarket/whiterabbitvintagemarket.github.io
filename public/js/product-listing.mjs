@@ -62,7 +62,7 @@ class ProductListing extends HTMLElement {
     this.updateUrlQueryString({ "product-id": this.sku });
     this.logEventViewItem();
 
-    this.addEventListener("keydown", this.closeModalWithEscapeKey);
+    window.addEventListener("keydown", this.closeModalWithEscapeKey.bind(this));
 
     // prevent background scrolling
     // https://css-tricks.com/prevent-page-scrolling-when-a-modal-is-open/
@@ -173,7 +173,10 @@ class ProductListing extends HTMLElement {
     modalContainer.remove();
     this.updateUrlQueryString({ "product-id": "" });
 
-    this.removeEventListener("keydown", this.closeModalWithEscapeKey);
+    window.removeEventListener(
+      "keydown",
+      this.closeModalWithEscapeKey.bind(this),
+    );
 
     // prevent background scrolling
     // https://css-tricks.com/prevent-page-scrolling-when-a-modal-is-open/

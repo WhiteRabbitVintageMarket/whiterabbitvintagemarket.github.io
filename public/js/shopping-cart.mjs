@@ -5,6 +5,8 @@ import {
 
 import { formatPrice, calculateTotal } from "/js/money.mjs";
 
+export const shoppingCartRenderEventName = "shoppingCartRender";
+
 class ShoppingCart extends HTMLElement {
   constructor() {
     super();
@@ -121,6 +123,9 @@ class ShoppingCart extends HTMLElement {
     this.appendChild(unorderedList);
     this.renderSummary(selectedProducts);
     this.logEventViewCart(selectedProducts);
+
+    const eventUpdateCart = new CustomEvent(shoppingCartRenderEventName);
+    window.dispatchEvent(eventUpdateCart);
   }
 
   renderProduct({ sku, imageUrl, name, amount, container }) {
