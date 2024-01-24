@@ -135,7 +135,12 @@ class ShoppingCart extends HTMLElement {
     imageElement.src = imageUrl;
     imageElement.alt = name;
 
-    listItem.querySelector('slot[name="product-name"]').innerText = name;
+    const productNameHyperlink = listItem.querySelector(
+      'slot[name="product-name"] a',
+    );
+    productNameHyperlink.href = `/shop/?product-id=${sku}`;
+    productNameHyperlink.innerText = name;
+
     listItem.querySelector('slot[name="product-amount"]').innerText =
       formatPrice(amount);
 

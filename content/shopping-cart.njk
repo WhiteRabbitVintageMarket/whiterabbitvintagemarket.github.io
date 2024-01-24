@@ -13,7 +13,9 @@ description: Artfully curated vintage items to bring curiousity & intrigue to yo
         <img class="w-32 object-cover aspect-square bg-stone-300 mr-4" src="">
       </slot>
       <p class="grow basis-1/5">
-        <slot name="product-name">PRODUCT NAME</slot>
+        <slot name="product-name">
+          <a href="javascript:void(0);" class="hover:underline">PRODUCT NAME</a>
+        </slot>
       </p>
       <div class="w-full sm:w-40 order-2 sm:order-none flex justify-end ml-4">
         <slot name="product-amount">PRODUCT PRICE</slot>
