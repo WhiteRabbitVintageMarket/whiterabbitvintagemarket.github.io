@@ -14,9 +14,8 @@ class ProductListing extends HTMLElement {
     this.amount = this.getAttribute("amount");
     this.size = this.getAttribute("size");
     this.imageUrl = this.getAttribute("image-url");
-
-    const isSoldString = this.getAttribute("is-sold");
-    this.isSold = isSoldString === "true";
+    this.quantity = parseInt(this.getAttribute("quantity"), 10);
+    this.isSold = this.quantity === 0;
 
     this.renderProductListing();
   }

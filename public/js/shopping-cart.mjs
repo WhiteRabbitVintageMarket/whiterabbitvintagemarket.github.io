@@ -71,23 +71,18 @@ class ShoppingCart extends HTMLElement {
   getSelectedProductsFromLocalStorage() {
     const { products: cartProducts } = getCartLocalStorage();
 
-    const foundProducts = this.products.filter((product) => {
-      const result = cartProducts.find(({ id }) => {
-        const isSold = product.is_sold === "true";
-        return id === product.sku && isSold === false;
+    const foundProducts = this.products.filter(({ sku, quantity }) => {
+      const result = cartProducts.find(({ id: cartId }) => {
+        const isSold = quantity === 0;
+        if (isSold && cartId === sku) {
+          removeProductFromCart(cartId);
+          return;
+        } else if (cartId === sku) {
+          return true;
+        }
       });
       return Boolean(result);
     });
-
-    // remove any products from cart that are not found
-    if (cartProducts.length !== foundProducts.length) {
-      for (const cartProduct of cartProducts) {
-        const result = this.products.find(({ sku }) => cartProduct.id === sku);
-        if (!result) {
-          removeProductFromCart(cartProduct.id);
-        }
-      }
-    }
 
     return foundProducts;
   }
