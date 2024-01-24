@@ -72,7 +72,7 @@ class ProductListings extends HTMLElement {
       amount,
       size,
       image_url,
-      is_sold,
+      quantity,
     } of this.products) {
       html += `
         <product-listing
@@ -82,7 +82,7 @@ class ProductListings extends HTMLElement {
           amount="${amount}"
           size="${size}"
           image-url="${image_url}"
-          is-sold="${is_sold}"
+          quantity="${quantity}"
         >
         </product-listing>
       `.trim();

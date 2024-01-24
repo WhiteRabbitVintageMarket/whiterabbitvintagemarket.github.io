@@ -13,45 +13,75 @@ class PayPalButtons extends HTMLElement {
   }
 
   async createOrder() {
-    const { products } = getCartLocalStorage();
-    const data = products.map(({ id, quantity }) => {
-      return { sku: id, quantity };
-    });
+    try {
+      const { products } = getCartLocalStorage();
+      const data = products.map(({ id, quantity }) => {
+        return { sku: id, quantity };
+      });
 
-    const response = await fetch(
-      "https://white-rabbit-server.fly.dev/api/create-order",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      const response = await fetch(
+        "https://white-rabbit-server.fly.dev/api/shopping-cart/begin-checkout",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ cart: data }),
         },
-        body: JSON.stringify({ cart: data }),
-      },
-    );
+      );
 
-    const orderData = await response.json();
+      const orderData = await response.json();
 
-    return orderData.id;
+      if (orderData.id) {
+        return orderData.id;
+      } else {
+        const errorDetail = orderData?.details?.[0];
+
+        if (errorDetail) {
+          throw new Error(
+            `${errorDetail.issue} ${errorDetail.description} (${orderData.debug_id})`,
+          );
+        } else if (orderData.message) {
+          throw new Error(orderData.message);
+        } else {
+          throw new Error(JSON.stringify(orderData));
+        }
+      }
+    } catch (error) {
+      this.renderErrorMessage(error);
+    }
   }
 
   async onApprove({ orderID }) {
-    const response = await fetch(
-      "https://white-rabbit-server.fly.dev/api/capture-order",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+    try {
+      const response = await fetch(
+        "https://white-rabbit-server.fly.dev/api/shopping-cart/complete-checkout",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ id: orderID }),
         },
-        body: JSON.stringify({ id: orderID }),
-      },
-    );
+      );
 
-    const orderData = await response.json();
-    setCartLocalStorage({ products: [] });
+      const orderData = await response.json();
 
-    window.location.href = "/order-complete/";
+      const errorDetail = orderData?.details?.[0];
 
-    // return orderData;
+      if (orderData.id && orderData.status === "COMPLETED") {
+        setCartLocalStorage({ products: [] });
+        window.location.href = `/order-complete/?paypal-order-id=${orderData.id}`;
+      } else if (errorDetail) {
+        throw new Error(`${errorDetail.description} (${orderData.debug_id})`);
+      } else if (orderData.message) {
+        throw new Error(orderData.message);
+      } else {
+        throw new Error(JSON.stringify(orderData));
+      }
+    } catch (error) {
+      this.renderErrorMessage(error);
+    }
   }
 
   render() {
@@ -61,8 +91,8 @@ class PayPalButtons extends HTMLElement {
     }
 
     this.buttonReference = window.paypal.Buttons({
-      createOrder: this.createOrder,
-      onApprove: this.onApprove,
+      createOrder: this.createOrder.bind(this),
+      onApprove: this.onApprove.bind(this),
     });
 
     this.buttonReference.render(this);
@@ -89,6 +119,24 @@ class PayPalButtons extends HTMLElement {
         this.close();
       }
     });
+  }
+
+  renderErrorMessage(message) {
+    const alertErrorTemplate = document.getElementById(
+      "alert-error-template",
+    ).content;
+    const alert = alertErrorTemplate.cloneNode(true);
+
+    alert.querySelector('slot[name="error-message"]').innerText = message;
+
+    alert.querySelector("button").onclick = () => {
+      const currentAlert = document.querySelector(".alert-error");
+      if (currentAlert) {
+        currentAlert.remove();
+      }
+    };
+
+    this.append(alert);
   }
 }
 

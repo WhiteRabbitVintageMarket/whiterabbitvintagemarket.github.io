@@ -50,8 +50,19 @@ description: Artfully curated vintage items to bring curiousity & intrigue to yo
 
   <shopping-cart class="block mt-10"></shopping-cart>
 
+  <template id="alert-error-template">
+    <div class="alert-error mb-8 bg-red-100 border border-red-300 text-red-700 p-4 pr-12 rounded relative" role="alert">
+      <slot name="error-message">ERROR MESSAGE</slot>
+      <button type="button" class="absolute top-0 right-0 p-4">
+        <svg class="fill-current" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 18">
+          <path d="M14.53 4.53l-1.06-1.06L9 7.94 4.53 3.47 3.47 4.53 7.94 9l-4.47 4.47 1.06 1.06L9 10.06l4.47 4.47 1.06-1.06L10.06 9z"></path>
+        </svg>
+      </button>
+    </div>
+  </template>
+
   <div class="mt-8 flex sm:justify-end">
-    <paypal-buttons class="block grow sm:grow-0 sm:min-w-96"></paypal-buttons>
+    <paypal-buttons class="block grow sm:grow-0 sm:min-w-96 sm:max-w-sm"></paypal-buttons>
   </div>
 </div>
 
