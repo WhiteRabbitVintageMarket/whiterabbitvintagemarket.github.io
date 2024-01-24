@@ -84,6 +84,16 @@ class PayPalButtons extends HTMLElement {
     }
   }
 
+  onShippingAddressChange(data, actions) {
+    const countryCode = data?.shippingAddress?.countryCode ?? "US";
+
+    if (countryCode === "US") {
+      return Promise.resolve();
+    } else {
+      return actions.reject(data?.errors?.COUNTRY_ERROR);
+    }
+  }
+
   render() {
     const { products } = getCartLocalStorage();
     if (products.length === 0) {
@@ -93,6 +103,7 @@ class PayPalButtons extends HTMLElement {
     this.buttonReference = window.paypal.Buttons({
       createOrder: this.createOrder.bind(this),
       onApprove: this.onApprove.bind(this),
+      onShippingAddressChange: this.onShippingAddressChange.bind(this),
     });
 
     this.buttonReference.render(this);
