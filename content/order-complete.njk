@@ -5,6 +5,38 @@ description: Artfully curated vintage items to bring curiousity & intrigue to yo
 ---
 
 <div class="mx-6 my-6">
-  <h2 class="text-3xl">Order Successful</h2>
-  <p class="mt-10">Your order has been successfully completed!</p>
+  <h2 class="text-3xl">Order Successfully Completed!</h2>
+
+  <order-complete class="block mt-10"></order-complete>
+
+  <template id="order-summary-template">
+    <p class="my-10">
+      Hi <slot name="payer-first-name">FIRST NAME</slot>, thank you so much for your payment of 
+      <slot name="grand-total">TOTAL AMOUNT</slot>
+      for the following <slot name="item-label">ITEM</slot>:
+    </p>
+  </template>
+
+  <template id="order-list-item-template">
+    <li class="flex flex-wrap justify-start items-start min-h-32 my-4 pb-4 border-b border-stone-300">
+      <slot name="product-image">
+        <img class="w-32 object-cover aspect-square bg-stone-300 mr-4" src="">
+      </slot>
+      <p class="grow basis-1/5">
+        <slot name="product-name">
+          <a href="javascript:void(0);" class="hover:underline">PRODUCT NAME</a>
+        </slot>
+      </p>
+    </li>
+  </template>
+
+  <template id="loading-spinner-template">
+    <div class="flex justify-center my-4">
+      <div id="loading-spinner" class="animate-spin inline-block w-8 h-8 border-[3px] border-current border-t-transparent text-stone-700 rounded-full" role="status" aria-label="loading">
+        <span class="sr-only">Loading...</span>
+      </div>
+    </div>
+  </template>
 </div>
+
+<script type="module" src="/js/order-complete.mjs"></script>
