@@ -48,10 +48,13 @@ class ShoppingCart extends HTMLElement {
     }
   }
 
-  async fetchProducts() {
+  async fetchProducts(skus) {
     this.loading = true;
+    const params = new URLSearchParams();
+    skus.forEach((sku) => params.append("sku[]", sku));
+
     const response = await fetch(
-      "https://white-rabbit-server.fly.dev/api/products",
+      `https://white-rabbit-server.fly.dev/api/products?${params.toString()}`,
     );
     const json = await response.json();
     this.products = json.data;
@@ -59,7 +62,13 @@ class ShoppingCart extends HTMLElement {
   }
 
   async connectedCallback() {
-    await this.fetchProducts();
+    const { products } = getCartLocalStorage();
+    if (products.length) {
+      const skus = products.map(({ id: sku }) => sku);
+      await this.fetchProducts(skus);
+    } else {
+      this.products = [];
+    }
   }
 
   attributeChangedCallback(name) {
@@ -88,10 +97,6 @@ class ShoppingCart extends HTMLElement {
   }
 
   renderShoppingCart() {
-    if (!this.products || this.products.length === 0) {
-      return;
-    }
-
     this.innerHTML = "";
     const selectedProducts = this.getSelectedProductsFromLocalStorage();
 
