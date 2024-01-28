@@ -14,6 +14,7 @@ class ProductListing extends HTMLElement {
     this.amount = this.getAttribute("amount");
     this.size = this.getAttribute("size");
     this.imageUrl = this.getAttribute("image-url");
+    this.instagramUrl = this.getAttribute("instagram-url");
     this.quantity = parseInt(this.getAttribute("quantity"), 10);
     this.isSold = this.quantity === 0;
 
@@ -88,6 +89,16 @@ class ProductListing extends HTMLElement {
     modal.querySelector('slot[name="product-description"]').innerText =
       this.description;
     modal.querySelector('slot[name="product-size"]').innerText = this.size;
+
+    const instagramLinkContainer = modal.querySelector(
+      'slot[name="instagram-link"]',
+    );
+
+    if (this.instagramUrl) {
+      instagramLinkContainer.querySelector("a").href = this.instagramUrl;
+    } else {
+      instagramLinkContainer.remove();
+    }
 
     const buttonAddToCart = modal.querySelector("#btn-add-to-cart");
     if (this.isSold) {

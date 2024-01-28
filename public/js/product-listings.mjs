@@ -72,6 +72,7 @@ class ProductListings extends HTMLElement {
       amount,
       size,
       image_url,
+      instagram_url,
       quantity,
     } of this.products) {
       html += `
@@ -82,6 +83,7 @@ class ProductListings extends HTMLElement {
           amount="${amount}"
           size="${size}"
           image-url="${image_url}"
+          instagram-url="${instagram_url}"
           quantity="${quantity}"
         >
         </product-listing>
