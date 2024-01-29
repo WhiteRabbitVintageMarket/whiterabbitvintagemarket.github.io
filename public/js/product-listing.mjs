@@ -60,6 +60,14 @@ class ProductListing extends HTMLElement {
     this.querySelector("#modal-container").showModal();
 
     this.updateUrlQueryString({ "product-id": this.sku });
+
+    this.updateMetaTags({
+      name: this.name,
+      description: this.description,
+      sku: this.sku,
+      imageUrl: this.imageUrl,
+    });
+
     this.logEventViewItem();
 
     window.addEventListener("keydown", this.closeModalWithEscapeKey.bind(this));
@@ -140,6 +148,34 @@ class ProductListing extends HTMLElement {
     history.replaceState(null, null, newUrl);
   }
 
+  updateMetaTags({ name, description, sku, imageUrl }) {
+    const updateMetaTag = ({ name, value }) => {
+      const attributeName = name.startsWith("og:") ? "property" : "name";
+      let metaElement = document.querySelector(
+        `meta[${attributeName}="${name}"]`,
+      );
+
+      if (metaElement) {
+        metaElement.setAttribute("content", value);
+      } else {
+        metaElement = document.createElement("meta");
+        metaElement.setAttribute(attributeName, name);
+        metaElement.setAttribute("content", value);
+        document.head.appendChild(metaElement);
+      }
+    };
+
+    updateMetaTag({ name: "og:title", value: name });
+    updateMetaTag({ name: "description", value: description });
+    updateMetaTag({ name: "og:description", value: description });
+    updateMetaTag({ name: "og:image", value: imageUrl });
+
+    const productUrl = sku
+      ? `${window.location.origin}${this.getProductUrl(sku)}`
+      : "";
+    updateMetaTag({ name: "og:url", value: productUrl });
+  }
+
   addProductToCart() {
     addProductToCartLocalStorage(this.sku);
     this.logEventAddToCart();
@@ -182,6 +218,12 @@ class ProductListing extends HTMLElement {
     modalContainer.close();
     modalContainer.remove();
     this.updateUrlQueryString({ "product-id": "" });
+    this.updateMetaTags({
+      name: "",
+      description: "",
+      sku: "",
+      imageUrl: "",
+    });
 
     window.removeEventListener(
       "keydown",
