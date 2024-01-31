@@ -10,9 +10,22 @@
     U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
+form.wufoo {
+  font-family: "Cormorant Garamond", sans-serif;
+  font-size: 18px;
+}
+
+.wufoo header.info {
+  display: none;
+}
+
+#container,
+html.embed {
+  background-color: transparent;
+}
+
 .wufoo input.text,
 .wufoo textarea.textarea {
-  font-family: "Cormorant Garamond", sans-serif;
   appearance: none;
   background-color: #fff;
   border-color: #6b7280;
@@ -27,7 +40,6 @@
 }
 
 .wufoo input.btTxt {
-  font-family: "Cormorant Garamond", sans-serif;
   border-radius: 0.5rem;
   color: #ebece6;
   background-color: #0c0a09;
@@ -35,4 +47,8 @@
   padding-bottom: 0.625rem;
   padding-left: 1.25rem;
   padding-right: 1.25rem;
+}
+
+.wufoo textarea.textarea {
+  min-width: 350px;
 }
