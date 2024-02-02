@@ -25,6 +25,17 @@
 
     gtag('config', 'G-6S64W3FTQQ');
   </script>
+
+    <script async src="https://www.paypalobjects.com/insights/v1/paypal-insights.sandbox.min.js"></script>
+    <script>
+      window.paypalInsightDataLayer = window.paypalInsightDataLayer || [];
+      function paypalInsight() {
+        paypalInsightDataLayer.push(arguments);
+      }
+      const clientId = "AUhhngQZuA196XU2_zVKjhX_fteqT__ww54meamPC7hLSgGlA8mZG0ig_6lDiJgUvCxP4Sxm2F6qBexC";
+      paypalInsight("config", clientId, { send_page_view: true, debug: true });
+      paypalInsight("event", "js_load", { timestamp: new Date() });
+  </script>
 </head>
 <body class="flex min-h-full custom-font-body custom-bg-pure-white text-stone-950">
   <div class="flex-auto min-h-screen">
