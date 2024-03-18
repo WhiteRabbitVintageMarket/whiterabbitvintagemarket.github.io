@@ -41,9 +41,7 @@ class ProductListings extends HTMLElement {
 
   async fetchProducts() {
     this.loading = true;
-    const response = await fetch(
-      "https://white-rabbit-server.fly.dev/api/products",
-    );
+    const response = await fetch(`${window.config.apiBaseUrl}/api/products`);
     const json = await response.json();
     this.products = json.data;
     this.loading = false;

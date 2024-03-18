@@ -77,6 +77,12 @@
       </div>
     </footer>
   </div>
+<script>
+  window.config = {
+    apiBaseUrl: "{{ config.apiBaseUrl }}",
+    paypalSandboxClientId: "{{ config.paypalSandboxClientId }}"
+  };
+</script>
 <script src="/js/shopping-cart-count.mjs" type="module"></script>
 </body>
 </html>

@@ -9,6 +9,12 @@ module.exports = function (eleventyConfig) {
     return new CleanCSS({}).minify(code).styles;
   });
 
+  eleventyConfig.addGlobalData("config", {
+    apiBaseUrl: "https://white-rabbit-server.fly.dev",
+    paypalSandboxClientId:
+      "AUhhngQZuA196XU2_zVKjhX_fteqT__ww54meamPC7hLSgGlA8mZG0ig_6lDiJgUvCxP4Sxm2F6qBexC",
+  });
+
   return {
     dir: {
       input: "content",

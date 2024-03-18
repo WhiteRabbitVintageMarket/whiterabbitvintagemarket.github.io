@@ -20,7 +20,7 @@ class PayPalButtons extends HTMLElement {
       });
 
       const response = await fetch(
-        "https://white-rabbit-server.fly.dev/api/shopping-cart/begin-checkout",
+        `${window.config.apiBaseUrl}/api/shopping-cart/begin-checkout`,
         {
           method: "POST",
           headers: {
@@ -55,7 +55,7 @@ class PayPalButtons extends HTMLElement {
   async onApprove({ orderID }) {
     try {
       const response = await fetch(
-        "https://white-rabbit-server.fly.dev/api/shopping-cart/complete-checkout",
+        `${window.config.apiBaseUrl}/api/shopping-cart/complete-checkout`,
         {
           method: "POST",
           headers: {
