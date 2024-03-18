@@ -45,7 +45,7 @@ class OrderComplete extends HTMLElement {
     this.loading = true;
 
     const response = await fetch(
-      `https://white-rabbit-server.fly.dev/api/orders?paypal-order-id=${orderId}`,
+      `${window.config.apiBaseUrl}/api/orders?paypal-order-id=${orderId}`,
     );
     const json = await response.json();
     this.order = json;

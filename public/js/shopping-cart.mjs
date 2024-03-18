@@ -54,7 +54,7 @@ class ShoppingCart extends HTMLElement {
     skus.forEach((sku) => params.append("sku[]", sku));
 
     const response = await fetch(
-      `https://white-rabbit-server.fly.dev/api/products?${params.toString()}`,
+      `${window.config.apiBaseUrl}/api/products?${params.toString()}`,
     );
     const json = await response.json();
     this.products = json.data;
