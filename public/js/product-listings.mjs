@@ -1,3 +1,10 @@
+const LOADING_STATES = {
+  INITIAL: "INITIAL",
+  PENDING: "PENDING",
+  RESOLVED: "RESOLVED",
+  REJECTED: "REJECTED",
+};
+
 class ProductListings extends HTMLElement {
   constructor() {
     super();
@@ -5,16 +12,20 @@ class ProductListings extends HTMLElement {
   }
 
   static get observedAttributes() {
-    return ["loading"];
+    return ["loading-state"];
   }
 
-  get loading() {
-    return JSON.parse(this.getAttribute("loading"));
+  get loadingState() {
+    return this.getAttribute("loading-state");
   }
 
-  set loading(value) {
-    value === true ? this.showLoadingSpinner() : this.hideLoadingSpinner();
-    this.setAttribute("loading", JSON.stringify(value));
+  set loadingState(value) {
+    if (value === LOADING_STATES.INITIAL || value === LOADING_STATES.PENDING) {
+      this.showLoadingSpinner();
+    } else {
+      this.hideLoadingSpinner();
+    }
+    this.setAttribute("loading-state", value);
   }
 
   showLoadingSpinner() {
@@ -33,22 +44,36 @@ class ProductListings extends HTMLElement {
   }
 
   async fetchProducts() {
-    this.loading = true;
-    const response = await fetch(`${window.config.apiBaseUrl}/api/products`);
-    const json = await response.json();
-    this.products = json.data;
-    this.loading = false;
+    try {
+      this.loadingState = LOADING_STATES.PENDING;
+      const response = await fetch(`${window.config.apiBaseUrl}/api/products`);
+      const json = await response.json();
+      this.products = json.data;
+      if (this.products.length) {
+        this.loadingState = LOADING_STATES.RESOLVED;
+      } else {
+        throw new Error("Failed to load products");
+      }
+    } catch (err) {
+      this.loadingState = LOADING_STATES.REJECTED;
+    }
   }
   async connectedCallback() {
     await this.fetchProducts();
   }
 
   attributeChangedCallback(name) {
+    if (name !== "loading-state") {
+      return;
+    }
+
     // wait for products to finish loading before rendering
-    const isFinishedLoadingProducts =
-      this.products.length && name === "loading" && this.loading === false;
-    if (isFinishedLoadingProducts) {
+    if (this.loadingState === LOADING_STATES.RESOLVED) {
       this.renderProductListings();
+    } else if (this.loadingState === LOADING_STATES.REJECTED) {
+      this.renderErrorMessage(
+        "Failed to load products. Please try again later.",
+      );
     }
   }
 
@@ -85,6 +110,17 @@ class ProductListings extends HTMLElement {
     }
 
     this.innerHTML = html;
+  }
+
+  renderErrorMessage(message) {
+    const alertErrorTemplate = document.getElementById(
+      "alert-error-template",
+    ).content;
+    const alert = alertErrorTemplate.cloneNode(true);
+
+    alert.querySelector('slot[name="error-message"]').innerText = message;
+
+    this.append(alert);
   }
 }
 
