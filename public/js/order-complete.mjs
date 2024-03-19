@@ -3,10 +3,11 @@ import { formatPrice } from "/js/money.mjs";
 class OrderComplete extends HTMLElement {
   constructor() {
     super();
+    this.order = {};
   }
 
   static get observedAttributes() {
-    return ["loading", "order"];
+    return ["loading"];
   }
 
   get loading() {
@@ -16,14 +17,6 @@ class OrderComplete extends HTMLElement {
   set loading(value) {
     value === true ? this.showLoadingSpinner() : this.hideLoadingSpinner();
     this.setAttribute("loading", JSON.stringify(value));
-  }
-
-  get order() {
-    return JSON.parse(this.getAttribute("order"));
-  }
-
-  set order(value) {
-    this.setAttribute("order", JSON.stringify(value));
   }
 
   showLoadingSpinner() {
@@ -65,7 +58,7 @@ class OrderComplete extends HTMLElement {
   }
 
   attributeChangedCallback(name) {
-    if (name === "order") {
+    if (name === "loading" && this.loading === false) {
       this.render();
     }
   }
