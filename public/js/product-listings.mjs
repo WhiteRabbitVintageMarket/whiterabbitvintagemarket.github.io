@@ -1,10 +1,11 @@
 class ProductListings extends HTMLElement {
   constructor() {
     super();
+    this.products = [];
   }
 
   static get observedAttributes() {
-    return ["loading", "products"];
+    return ["loading"];
   }
 
   get loading() {
@@ -14,14 +15,6 @@ class ProductListings extends HTMLElement {
   set loading(value) {
     value === true ? this.showLoadingSpinner() : this.hideLoadingSpinner();
     this.setAttribute("loading", JSON.stringify(value));
-  }
-
-  get products() {
-    return JSON.parse(this.getAttribute("products"));
-  }
-
-  set products(value) {
-    this.setAttribute("products", JSON.stringify(value));
   }
 
   showLoadingSpinner() {
@@ -51,7 +44,10 @@ class ProductListings extends HTMLElement {
   }
 
   attributeChangedCallback(name) {
-    if (name === "products") {
+    // wait for products to finish loading before rendering
+    const isFinishedLoadingProducts =
+      this.products.length && name === "loading" && this.loading === false;
+    if (isFinishedLoadingProducts) {
       this.renderProductListings();
     }
   }

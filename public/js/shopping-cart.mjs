@@ -10,10 +10,11 @@ export const shoppingCartRenderEventName = "shoppingCartRender";
 class ShoppingCart extends HTMLElement {
   constructor() {
     super();
+    this.products = [];
   }
 
   static get observedAttributes() {
-    return ["loading", "products"];
+    return ["loading"];
   }
 
   get loading() {
@@ -23,14 +24,6 @@ class ShoppingCart extends HTMLElement {
   set loading(value) {
     value === true ? this.showLoadingSpinner() : this.hideLoadingSpinner();
     this.setAttribute("loading", JSON.stringify(value));
-  }
-
-  get products() {
-    return JSON.parse(this.getAttribute("products"));
-  }
-
-  set products(value) {
-    this.setAttribute("products", JSON.stringify(value));
   }
 
   showLoadingSpinner() {
@@ -67,12 +60,15 @@ class ShoppingCart extends HTMLElement {
       const skus = products.map(({ id: sku }) => sku);
       await this.fetchProducts(skus);
     } else {
-      this.products = [];
+      this.renderTemplateForEmptyCart();
     }
   }
 
   attributeChangedCallback(name) {
-    if (name === "products") {
+    // wait for products to finish loading before rendering
+    const isFinishedLoadingProducts =
+      this.products.length && name === "loading" && this.loading === false;
+    if (isFinishedLoadingProducts) {
       this.renderShoppingCart();
     }
   }
@@ -96,15 +92,19 @@ class ShoppingCart extends HTMLElement {
     return foundProducts;
   }
 
+  renderTemplateForEmptyCart() {
+    const shoppingCartEmptyTemplate = document.getElementById(
+      "shopping-cart-empty-template",
+    ).content;
+    return this.appendChild(shoppingCartEmptyTemplate.cloneNode(true));
+  }
+
   renderShoppingCart() {
     this.innerHTML = "";
     const selectedProducts = this.getSelectedProductsFromLocalStorage();
 
     if (selectedProducts.length === 0) {
-      const shoppingCartEmptyTemplate = document.getElementById(
-        "shopping-cart-empty-template",
-      ).content;
-      return this.appendChild(shoppingCartEmptyTemplate.cloneNode(true));
+      return this.renderTemplateForEmptyCart();
     }
 
     const unorderedList = document.createElement("ul");
