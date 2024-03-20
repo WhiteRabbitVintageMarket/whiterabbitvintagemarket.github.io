@@ -1,3 +1,13 @@
+export function getTemplate(templateId) {
+  const template = document.getElementById(templateId);
+
+  if (template === null) {
+    throw new Error(`Cannot find template "${templateId}"`);
+  }
+
+  return template.content.cloneNode(true);
+}
+
 export function formatPrice(price = "") {
   if (price === "") {
     return "";
@@ -21,3 +31,10 @@ export function calculateTotal(productsArray) {
   }, 0);
   return roundTwoDecimals(total);
 }
+
+export const LOADING_STATES = {
+  INITIAL: "INITIAL",
+  PENDING: "PENDING",
+  RESOLVED: "RESOLVED",
+  REJECTED: "REJECTED",
+};

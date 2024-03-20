@@ -2,46 +2,52 @@ import {
   addProductToCart as addProductToCartLocalStorage,
   isProductInCart,
 } from "/js/shopping-cart-local-storage.mjs";
-import { formatPrice } from "/js/money.mjs";
+import { formatPrice, getTemplate } from "/js/utils.mjs";
 
 class ProductListing extends HTMLElement {
   constructor() {
     super();
 
-    this.sku = this.getAttribute("sku");
-    this.name = this.getAttribute("name");
-    this.description = this.getAttribute("description");
-    this.amount = this.getAttribute("amount");
-    this.size = this.getAttribute("size");
-    this.imageUrl = this.getAttribute("image-url");
-    this.instagramUrl = this.getAttribute("instagram-url");
-    this.quantity = parseInt(this.getAttribute("quantity"), 10);
-    this.isSold = this.quantity === 0;
+    this.templates = {
+      productListing: getTemplate("product-listing-template"),
+      modal: getTemplate("modal-template"),
+    };
+
+    const quantity = parseInt(this.getAttribute("quantity"), 10);
+
+    this.product = {
+      sku: this.getAttribute("sku"),
+      name: this.getAttribute("name"),
+      description: this.getAttribute("description"),
+      amount: this.getAttribute("amount"),
+      size: this.getAttribute("size"),
+      imageUrl: this.getAttribute("image-url"),
+      instagramUrl: this.getAttribute("instagram-url"),
+      quantity,
+      isSold: quantity === 0,
+    };
 
     this.renderProductListing();
   }
 
   renderProductListing() {
-    const productListingTemplate = document.getElementById(
-      "product-listing-template",
-    ).content;
-    const productListing = productListingTemplate.cloneNode(true);
+    const productListing = this.templates.productListing;
+    const { sku, imageUrl, name, amount, isSold } = this.product;
 
-    productListing.querySelector("a").href = this.getProductUrl(this.sku);
+    productListing.querySelector("a").href = this.getProductUrl(sku);
 
     const imageElement = productListing.querySelector(
       'slot[name="product-image"] img',
     );
-    imageElement.src = this.imageUrl;
-    imageElement.alt = this.name;
+    imageElement.src = imageUrl;
+    imageElement.alt = name;
 
-    productListing.querySelector('slot[name="product-name"]').innerText =
-      this.name;
+    productListing.querySelector('slot[name="product-name"]').innerText = name;
 
     productListing.querySelector('slot[name="product-amount"]').innerText =
-      formatPrice(this.amount);
+      formatPrice(amount);
 
-    if (this.isSold === false) {
+    if (isSold === false) {
       productListing.querySelector('slot[name="product-sold"]').innerHTML = "";
     }
 
@@ -49,23 +55,23 @@ class ProductListing extends HTMLElement {
   }
 
   showModal(event) {
+    const { sku, imageUrl, name, description } = this.product;
+
     event.preventDefault();
 
-    // only display 1 modal at a time
-    if (this.querySelector("#modal-container")) {
-      return;
+    if (!this.querySelector("#modal-container")) {
+      this.addModalContent();
     }
 
-    this.addModalContent();
     this.querySelector("#modal-container").showModal();
 
-    this.updateUrlQueryString({ "product-id": this.sku });
+    this.updateUrlQueryString({ "product-id": sku });
 
     this.updateMetaTags({
-      name: this.name,
-      description: this.description,
-      sku: this.sku,
-      imageUrl: this.imageUrl,
+      name,
+      description,
+      sku,
+      imageUrl,
     });
 
     this.logEventViewItem();
@@ -82,37 +88,43 @@ class ProductListing extends HTMLElement {
   }
 
   addModalContent() {
-    const modalTemplate = document.getElementById("modal-template").content;
+    const {
+      sku,
+      imageUrl,
+      name,
+      amount,
+      description,
+      size,
+      instagramUrl,
+      isSold,
+    } = this.product;
+    const modal = this.templates.modal;
 
-    const modal = modalTemplate.cloneNode(true);
+    modal.querySelector('slot[name="modal-title"]').innerText = name;
+    modal.querySelector('slot[name="product-image"] img').src = imageUrl;
 
-    modal.querySelector('slot[name="modal-title"]').innerText = this.name;
-    modal.querySelector('slot[name="product-image"] img').src = this.imageUrl;
-
-    const amountText = this.amount
-      ? `${formatPrice(this.amount)} + shipping`
-      : "";
+    const amountText = amount ? `${formatPrice(amount)} + shipping` : "";
     modal.querySelector('slot[name="product-amount"]').innerText = amountText;
 
     modal.querySelector('slot[name="product-description"]').innerText =
-      this.description;
-    modal.querySelector('slot[name="product-size"]').innerText = this.size;
+      description;
+    modal.querySelector('slot[name="product-size"]').innerText = size;
 
     const instagramLinkContainer = modal.querySelector(
       'slot[name="instagram-link"]',
     );
 
-    if (this.instagramUrl) {
-      instagramLinkContainer.querySelector("a").href = this.instagramUrl;
+    if (instagramUrl) {
+      instagramLinkContainer.querySelector("a").href = instagramUrl;
     } else {
       instagramLinkContainer.remove();
     }
 
     const buttonAddToCart = modal.querySelector("#btn-add-to-cart");
-    if (this.isSold) {
+    if (isSold) {
       buttonAddToCart.innerText = "Sold Out";
       buttonAddToCart.disabled = true;
-    } else if (isProductInCart(this.sku)) {
+    } else if (isProductInCart(sku)) {
       buttonAddToCart.innerText = "Added to Cart";
       buttonAddToCart.disabled = true;
     } else {
@@ -177,33 +189,37 @@ class ProductListing extends HTMLElement {
   }
 
   addProductToCart() {
-    addProductToCartLocalStorage(this.sku);
+    addProductToCartLocalStorage(this.product.sku);
     this.logEventAddToCart();
   }
 
   logEventViewItem() {
+    const { sku, name, amount, quantity } = this.product;
+
     gtag("event", "view_item", {
       currency: "USD",
-      value: Number(this.amount),
+      value: Number(amount),
       items: [
         {
-          item_id: this.sku,
-          item_name: this.name,
-          quantity: 1,
+          item_id: sku,
+          item_name: name,
+          quantity,
         },
       ],
     });
   }
 
   logEventAddToCart() {
+    const { sku, name, amount, quantity } = this.product;
+
     gtag("event", "add_to_cart", {
       currency: "USD",
-      value: Number(this.amount),
+      value: Number(amount),
       items: [
         {
-          item_id: this.sku,
-          item_name: this.name,
-          quantity: 1,
+          item_id: sku,
+          item_name: name,
+          quantity,
         },
       ],
     });
@@ -216,7 +232,7 @@ class ProductListing extends HTMLElement {
     }
 
     modalContainer.close();
-    modalContainer.remove();
+    // modalContainer.remove();
     this.updateUrlQueryString({ "product-id": "" });
     this.updateMetaTags({
       name: "",
@@ -253,7 +269,7 @@ class ProductListing extends HTMLElement {
 
     const params = new URLSearchParams(window.location.search);
     const productId = params.get("product-id");
-    if (productId === this.sku) {
+    if (productId === this.product.sku) {
       this.querySelector("a").click();
     }
   }
