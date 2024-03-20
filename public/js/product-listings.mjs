@@ -1,14 +1,15 @@
-const LOADING_STATES = {
-  INITIAL: "INITIAL",
-  PENDING: "PENDING",
-  RESOLVED: "RESOLVED",
-  REJECTED: "REJECTED",
-};
+import { getTemplate, LOADING_STATES } from "/js/utils.mjs";
 
 class ProductListings extends HTMLElement {
   constructor() {
     super();
+
     this.products = [];
+
+    this.templates = {
+      loadingSpinner: getTemplate("loading-spinner-template"),
+      alertError: getTemplate("alert-error-template"),
+    };
   }
 
   static get observedAttributes() {
@@ -29,11 +30,7 @@ class ProductListings extends HTMLElement {
   }
 
   showLoadingSpinner() {
-    const shoppingCartLoadingSpinnerTemplate = document.getElementById(
-      "loading-spinner-template",
-    ).content;
-    const loadingSpinner = shoppingCartLoadingSpinnerTemplate.cloneNode(true);
-    this.appendChild(loadingSpinner);
+    this.appendChild(this.templates.loadingSpinner);
   }
 
   hideLoadingSpinner() {
@@ -58,6 +55,7 @@ class ProductListings extends HTMLElement {
       this.loadingState = LOADING_STATES.REJECTED;
     }
   }
+
   async connectedCallback() {
     await this.fetchProducts();
   }
@@ -113,14 +111,10 @@ class ProductListings extends HTMLElement {
   }
 
   renderErrorMessage(message) {
-    const alertErrorTemplate = document.getElementById(
-      "alert-error-template",
-    ).content;
-    const alert = alertErrorTemplate.cloneNode(true);
-
-    alert.querySelector('slot[name="error-message"]').innerText = message;
-
-    this.append(alert);
+    this.templates.alertError.querySelector(
+      'slot[name="error-message"]',
+    ).innerText = message;
+    this.append(this.templates.alertError);
   }
 }
 

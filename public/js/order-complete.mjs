@@ -1,4 +1,4 @@
-import { formatPrice } from "/js/money.mjs";
+import { formatPrice } from "/js/utils.mjs";
 
 class OrderComplete extends HTMLElement {
   constructor() {

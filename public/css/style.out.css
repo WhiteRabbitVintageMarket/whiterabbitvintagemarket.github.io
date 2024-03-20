@@ -1078,9 +1078,9 @@ video {
   letter-spacing: 0.025em;
 }
 
-.text-red-700 {
+.text-red-800 {
   --tw-text-opacity: 1;
-  color: rgb(185 28 28 / var(--tw-text-opacity));
+  color: rgb(153 27 27 / var(--tw-text-opacity));
 }
 
 .text-stone-700 {

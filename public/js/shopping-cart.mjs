@@ -3,35 +3,49 @@ import {
   removeProductFromCart,
 } from "/js/shopping-cart-local-storage.mjs";
 
-import { formatPrice, calculateTotal } from "/js/money.mjs";
+import {
+  formatPrice,
+  calculateTotal,
+  getTemplate,
+  LOADING_STATES,
+} from "/js/utils.mjs";
 
 export const shoppingCartRenderEventName = "shoppingCartRender";
 
 class ShoppingCart extends HTMLElement {
   constructor() {
     super();
+
     this.products = [];
+
+    this.templates = {
+      loadingSpinner: getTemplate("loading-spinner-template"),
+      shoppingCartSummary: getTemplate("shopping-cart-summary-template"),
+      shoppingCartEmpty: getTemplate("shopping-cart-empty-template"),
+      alertError: getTemplate("alert-error-template"),
+      getNewShoppingCartListItem: () => getTemplate("shopping-cart-list-item-template"),
+    };
   }
 
   static get observedAttributes() {
-    return ["loading"];
+    return ["loading-state"];
   }
 
-  get loading() {
-    return JSON.parse(this.getAttribute("loading"));
+  get loadingState() {
+    return this.getAttribute("loading-state");
   }
 
-  set loading(value) {
-    value === true ? this.showLoadingSpinner() : this.hideLoadingSpinner();
-    this.setAttribute("loading", JSON.stringify(value));
+  set loadingState(value) {
+    if (value === LOADING_STATES.INITIAL || value === LOADING_STATES.PENDING) {
+      this.showLoadingSpinner();
+    } else {
+      this.hideLoadingSpinner();
+    }
+    this.setAttribute("loading-state", value);
   }
 
   showLoadingSpinner() {
-    const shoppingCartLoadingSpinnerTemplate = document.getElementById(
-      "loading-spinner-template",
-    ).content;
-    const loadingSpinner = shoppingCartLoadingSpinnerTemplate.cloneNode(true);
-    this.appendChild(loadingSpinner);
+    this.appendChild(this.templates.loadingSpinner);
   }
 
   hideLoadingSpinner() {
@@ -42,16 +56,26 @@ class ShoppingCart extends HTMLElement {
   }
 
   async fetchProducts(skus) {
-    this.loading = true;
-    const params = new URLSearchParams();
-    skus.forEach((sku) => params.append("sku[]", sku));
+    try {
+      this.loadingState = LOADING_STATES.PENDING;
 
-    const response = await fetch(
-      `${window.config.apiBaseUrl}/api/products?${params.toString()}`,
-    );
-    const json = await response.json();
-    this.products = json.data;
-    this.loading = false;
+      const params = new URLSearchParams();
+      skus.forEach((sku) => params.append("sku[]", sku));
+
+      const response = await fetch(
+        `${window.config.apiBaseUrl}/api/products?${params.toString()}`,
+      );
+      const json = await response.json();
+      this.products = json.data;
+
+      if (this.products.length) {
+        this.loadingState = LOADING_STATES.RESOLVED;
+      } else {
+        throw new Error("Failed to load products");
+      }
+    } catch (err) {
+      this.loadingState = LOADING_STATES.REJECTED;
+    }
   }
 
   async connectedCallback() {
@@ -65,11 +89,17 @@ class ShoppingCart extends HTMLElement {
   }
 
   attributeChangedCallback(name) {
+    if (name !== "loading-state") {
+      return;
+    }
+
     // wait for products to finish loading before rendering
-    const isFinishedLoadingProducts =
-      this.products.length && name === "loading" && this.loading === false;
-    if (isFinishedLoadingProducts) {
+    if (this.loadingState === LOADING_STATES.RESOLVED) {
       this.renderShoppingCart();
+    } else if (this.loadingState === LOADING_STATES.REJECTED) {
+      this.renderErrorMessage(
+        "Failed to load products. Please try again later.",
+      );
     }
   }
 
@@ -93,10 +123,7 @@ class ShoppingCart extends HTMLElement {
   }
 
   renderTemplateForEmptyCart() {
-    const shoppingCartEmptyTemplate = document.getElementById(
-      "shopping-cart-empty-template",
-    ).content;
-    return this.appendChild(shoppingCartEmptyTemplate.cloneNode(true));
+    return this.appendChild(this.templates.shoppingCartEmpty);
   }
 
   renderShoppingCart() {
@@ -129,10 +156,7 @@ class ShoppingCart extends HTMLElement {
   }
 
   renderProduct({ sku, imageUrl, name, amount, container }) {
-    const shoppingCartListItemTemplate = document.getElementById(
-      "shopping-cart-list-item-template",
-    ).content;
-    const listItem = shoppingCartListItemTemplate.cloneNode(true);
+    const listItem = this.templates.getNewShoppingCartListItem();
 
     const imageElement = listItem.querySelector(
       'slot[name="product-image"] img',
@@ -159,14 +183,18 @@ class ShoppingCart extends HTMLElement {
   }
 
   renderSummary(products) {
-    const shoppingCartSummaryTemplate = document.getElementById(
-      "shopping-cart-summary-template",
-    ).content;
-    const summary = shoppingCartSummaryTemplate.cloneNode(true);
+    const summary = this.templates.shoppingCartSummary;
     const subTotal = calculateTotal(products);
     summary.querySelector('slot[name="subtotal"]').innerText =
       formatPrice(subTotal);
     this.appendChild(summary);
+  }
+
+  renderErrorMessage(message) {
+    this.templates.alertError.querySelector(
+      'slot[name="error-message"]',
+    ).innerText = message;
+    this.append(this.templates.alertError);
   }
 
   logEventViewCart(products) {

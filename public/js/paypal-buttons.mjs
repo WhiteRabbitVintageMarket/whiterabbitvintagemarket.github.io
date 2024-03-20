@@ -134,7 +134,7 @@ class PayPalButtons extends HTMLElement {
 
   renderErrorMessage(message) {
     const alertErrorTemplate = document.getElementById(
-      "alert-error-template",
+      "alert-paypal-buttons-error-template",
     ).content;
     const alert = alertErrorTemplate.cloneNode(true);
 
