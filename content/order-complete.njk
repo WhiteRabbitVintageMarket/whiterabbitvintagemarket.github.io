@@ -39,4 +39,12 @@ description: Artfully curated vintage items to bring curiousity & intrigue to yo
   </template>
 </div>
 
+<template id="alert-error-template">
+  <div class="flex justify-center my-4 sm:col-span-2 md:col-span-3 lg:col-span-5">
+    <div class="alert-error w-full text-xl mb-8 bg-red-100 border border-red-300 text-red-800 p-4 rounded relative" role="alert">
+      <slot name="error-message">ERROR MESSAGE</slot>
+    </div>
+  </div>
+</template>
+
 <script type="module" src="/js/order-complete.mjs"></script>
