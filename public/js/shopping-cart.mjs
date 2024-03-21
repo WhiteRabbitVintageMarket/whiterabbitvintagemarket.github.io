@@ -23,7 +23,8 @@ class ShoppingCart extends HTMLElement {
       shoppingCartSummary: getTemplate("shopping-cart-summary-template"),
       shoppingCartEmpty: getTemplate("shopping-cart-empty-template"),
       alertError: getTemplate("alert-error-template"),
-      getNewShoppingCartListItem: () => getTemplate("shopping-cart-list-item-template"),
+      getNewShoppingCartListItem: () =>
+        getTemplate("shopping-cart-list-item-template"),
     };
   }
 

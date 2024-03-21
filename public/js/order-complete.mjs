@@ -1,30 +1,38 @@
-import { formatPrice } from "/js/utils.mjs";
+import { formatPrice, getTemplate, LOADING_STATES } from "/js/utils.mjs";
 
 class OrderComplete extends HTMLElement {
   constructor() {
     super();
+
     this.order = {};
+
+    this.templates = {
+      loadingSpinner: getTemplate("loading-spinner-template"),
+      orderSummary: getTemplate("order-summary-template"),
+      alertError: getTemplate("alert-error-template"),
+      getNewOrderListItem: () => getTemplate("order-list-item-template"),
+    };
   }
 
   static get observedAttributes() {
-    return ["loading"];
+    return ["loading-state"];
   }
 
-  get loading() {
-    return JSON.parse(this.getAttribute("loading"));
+  get loadingState() {
+    return this.getAttribute("loading-state");
   }
 
-  set loading(value) {
-    value === true ? this.showLoadingSpinner() : this.hideLoadingSpinner();
-    this.setAttribute("loading", JSON.stringify(value));
+  set loadingState(value) {
+    if (value === LOADING_STATES.INITIAL || value === LOADING_STATES.PENDING) {
+      this.showLoadingSpinner();
+    } else {
+      this.hideLoadingSpinner();
+    }
+    this.setAttribute("loading-state", value);
   }
 
   showLoadingSpinner() {
-    const shoppingCartLoadingSpinnerTemplate = document.getElementById(
-      "loading-spinner-template",
-    ).content;
-    const loadingSpinner = shoppingCartLoadingSpinnerTemplate.cloneNode(true);
-    this.appendChild(loadingSpinner);
+    this.appendChild(this.templates.loadingSpinner);
   }
 
   hideLoadingSpinner() {
@@ -35,14 +43,21 @@ class OrderComplete extends HTMLElement {
   }
 
   async fetchOrder(orderId) {
-    this.loading = true;
-
-    const response = await fetch(
-      `${window.config.apiBaseUrl}/api/orders?paypal-order-id=${orderId}`,
-    );
-    const json = await response.json();
-    this.order = json;
-    this.loading = false;
+    try {
+      this.loadingState = LOADING_STATES.PENDING;
+      const response = await fetch(
+        `${window.config.apiBaseUrl}/api/orders?paypal-order-id=${orderId}`,
+      );
+      const json = await response.json();
+      this.order = json;
+      if (this.order.paypal_order_id) {
+        this.loadingState = LOADING_STATES.RESOLVED;
+      } else {
+        throw new Error("Failed to load order");
+      }
+    } catch (err) {
+      this.loadingState = LOADING_STATES.REJECTED;
+    }
   }
 
   async connectedCallback() {
@@ -53,27 +68,27 @@ class OrderComplete extends HTMLElement {
     if (paypalOrderId) {
       await this.fetchOrder(paypalOrderId);
     } else {
-      this.order = {};
+      this.renderErrorMessage("Failed to load order.");
     }
   }
 
   attributeChangedCallback(name) {
-    if (name === "loading" && this.loading === false) {
+    if (name !== "loading-state") {
+      return;
+    }
+
+    // wait for products to finish loading before rendering
+    if (this.loadingState === LOADING_STATES.RESOLVED) {
       this.render();
+    } else if (this.loadingState === LOADING_STATES.REJECTED) {
+      this.renderErrorMessage("Failed to load order.");
     }
   }
 
   render() {
     this.innerHTML = "";
 
-    if (!this.order.paypal_order_id) {
-      return;
-    }
-
-    const orderSummaryTemplate = document.getElementById(
-      "order-summary-template",
-    ).content;
-    const orderSummary = orderSummaryTemplate.cloneNode(true);
+    const orderSummary = this.templates.orderSummary;
 
     const {
       payer_given_name: givenName,
@@ -105,10 +120,7 @@ class OrderComplete extends HTMLElement {
   }
 
   renderProduct({ sku, imageUrl, name, container }) {
-    const orderListItemTemplate = document.getElementById(
-      "order-list-item-template",
-    ).content;
-    const listItem = orderListItemTemplate.cloneNode(true);
+    const listItem = this.templates.getNewOrderListItem();
 
     const imageElement = listItem.querySelector(
       'slot[name="product-image"] img',
@@ -123,6 +135,13 @@ class OrderComplete extends HTMLElement {
     productNameHyperlink.innerText = name;
 
     container.appendChild(listItem);
+  }
+
+  renderErrorMessage(message) {
+    this.templates.alertError.querySelector(
+      'slot[name="error-message"]',
+    ).innerText = message;
+    this.append(this.templates.alertError);
   }
 }
 
