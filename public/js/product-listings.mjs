@@ -1,12 +1,14 @@
 import { getTemplate, LOADING_STATES } from "/js/utils.mjs";
 
 class ProductListings extends HTMLElement {
+  #templates;
+
   constructor() {
     super();
 
     this.products = [];
 
-    this.templates = {
+    this.#templates = {
       loadingSpinner: getTemplate("loading-spinner-template"),
       alertError: getTemplate("alert-error-template"),
     };
@@ -22,25 +24,25 @@ class ProductListings extends HTMLElement {
 
   set loadingState(value) {
     if (value === LOADING_STATES.INITIAL || value === LOADING_STATES.PENDING) {
-      this.showLoadingSpinner();
+      this.#showLoadingSpinner();
     } else {
-      this.hideLoadingSpinner();
+      this.#hideLoadingSpinner();
     }
     this.setAttribute("loading-state", value);
   }
 
-  showLoadingSpinner() {
-    this.appendChild(this.templates.loadingSpinner);
+  #showLoadingSpinner() {
+    this.appendChild(this.#templates.loadingSpinner);
   }
 
-  hideLoadingSpinner() {
+  #hideLoadingSpinner() {
     const loadingSpinner = document.querySelector("#loading-spinner");
     if (loadingSpinner) {
       loadingSpinner.remove();
     }
   }
 
-  async fetchProducts() {
+  async #fetchProducts() {
     try {
       this.loadingState = LOADING_STATES.PENDING;
       const response = await fetch(`${window.config.apiBaseUrl}/api/products`);
@@ -57,7 +59,7 @@ class ProductListings extends HTMLElement {
   }
 
   async connectedCallback() {
-    await this.fetchProducts();
+    await this.#fetchProducts();
   }
 
   attributeChangedCallback(name) {
@@ -67,19 +69,15 @@ class ProductListings extends HTMLElement {
 
     // wait for products to finish loading before rendering
     if (this.loadingState === LOADING_STATES.RESOLVED) {
-      this.renderProductListings();
+      this.#renderProductListings();
     } else if (this.loadingState === LOADING_STATES.REJECTED) {
-      this.renderErrorMessage(
+      this.#renderErrorMessage(
         "Failed to load products. Please try again later.",
       );
     }
   }
 
-  renderProductListings() {
-    if (!this.products || this.products.length === 0) {
-      return;
-    }
-
+  #renderProductListings() {
     let html = "";
 
     for (const {
@@ -110,11 +108,11 @@ class ProductListings extends HTMLElement {
     this.innerHTML = html;
   }
 
-  renderErrorMessage(message) {
-    this.templates.alertError.querySelector(
+  #renderErrorMessage(message) {
+    this.#templates.alertError.querySelector(
       'slot[name="error-message"]',
     ).innerText = message;
-    this.append(this.templates.alertError);
+    this.append(this.#templates.alertError);
   }
 }
 
