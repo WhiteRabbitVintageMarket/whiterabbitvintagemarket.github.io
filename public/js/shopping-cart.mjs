@@ -13,16 +13,18 @@ import {
 export const shoppingCartRenderEventName = "shoppingCartRender";
 
 class ShoppingCart extends HTMLElement {
+  #templates;
+
   constructor() {
     super();
 
     this.products = [];
 
-    this.templates = {
+    this.#templates = {
       loadingSpinner: getTemplate("loading-spinner-template"),
-      shoppingCartSummary: getTemplate("shopping-cart-summary-template"),
       shoppingCartEmpty: getTemplate("shopping-cart-empty-template"),
       alertError: getTemplate("alert-error-template"),
+      getNewShoppingCartSummary: () => getTemplate("shopping-cart-summary-template"),
       getNewShoppingCartListItem: () =>
         getTemplate("shopping-cart-list-item-template"),
     };
@@ -38,25 +40,25 @@ class ShoppingCart extends HTMLElement {
 
   set loadingState(value) {
     if (value === LOADING_STATES.INITIAL || value === LOADING_STATES.PENDING) {
-      this.showLoadingSpinner();
+      this.#showLoadingSpinner();
     } else {
-      this.hideLoadingSpinner();
+      this.#hideLoadingSpinner();
     }
     this.setAttribute("loading-state", value);
   }
 
-  showLoadingSpinner() {
-    this.appendChild(this.templates.loadingSpinner);
+  #showLoadingSpinner() {
+    this.appendChild(this.#templates.loadingSpinner);
   }
 
-  hideLoadingSpinner() {
+  #hideLoadingSpinner() {
     const loadingSpinner = document.querySelector("#loading-spinner");
     if (loadingSpinner) {
       loadingSpinner.remove();
     }
   }
 
-  async fetchProducts(skus) {
+  async #fetchProducts(skus) {
     try {
       this.loadingState = LOADING_STATES.PENDING;
 
@@ -83,9 +85,9 @@ class ShoppingCart extends HTMLElement {
     const { products } = getCartLocalStorage();
     if (products.length) {
       const skus = products.map(({ id: sku }) => sku);
-      await this.fetchProducts(skus);
+      await this.#fetchProducts(skus);
     } else {
-      this.renderTemplateForEmptyCart();
+      this.#renderTemplateForEmptyCart();
     }
   }
 
@@ -96,50 +98,31 @@ class ShoppingCart extends HTMLElement {
 
     // wait for products to finish loading before rendering
     if (this.loadingState === LOADING_STATES.RESOLVED) {
-      this.renderShoppingCart();
+      this.#renderShoppingCart();
     } else if (this.loadingState === LOADING_STATES.REJECTED) {
-      this.renderErrorMessage(
+      this.#renderErrorMessage(
         "Failed to load products. Please try again later.",
       );
     }
   }
 
-  getSelectedProductsFromLocalStorage() {
-    const { products: cartProducts } = getCartLocalStorage();
-
-    const foundProducts = this.products.filter(({ sku, quantity }) => {
-      const result = cartProducts.find(({ id: cartId }) => {
-        const isSold = quantity === 0;
-        if (isSold && cartId === sku) {
-          removeProductFromCart(cartId);
-          return;
-        } else if (cartId === sku) {
-          return true;
-        }
-      });
-      return Boolean(result);
-    });
-
-    return foundProducts;
+  #renderTemplateForEmptyCart() {
+    return this.appendChild(this.#templates.shoppingCartEmpty);
   }
 
-  renderTemplateForEmptyCart() {
-    return this.appendChild(this.templates.shoppingCartEmpty);
-  }
-
-  renderShoppingCart() {
+  #renderShoppingCart() {
     this.innerHTML = "";
-    const selectedProducts = this.getSelectedProductsFromLocalStorage();
+    const selectedProducts = getSelectedProductsFromLocalStorage(this.products);
 
     if (selectedProducts.length === 0) {
-      return this.renderTemplateForEmptyCart();
+      return this.#renderTemplateForEmptyCart();
     }
 
     const unorderedList = document.createElement("ul");
     unorderedList.id = "product-list";
 
     for (const { sku, image_url: imageUrl, name, amount } of selectedProducts) {
-      this.renderProduct({
+      this.#renderProduct({
         container: unorderedList,
         sku,
         imageUrl,
@@ -149,15 +132,15 @@ class ShoppingCart extends HTMLElement {
     }
 
     this.appendChild(unorderedList);
-    this.renderSummary(selectedProducts);
-    this.logEventViewCart(selectedProducts);
+    this.#renderSummary(selectedProducts);
+    logEventViewCart(selectedProducts);
 
     const eventUpdateCart = new CustomEvent(shoppingCartRenderEventName);
     window.dispatchEvent(eventUpdateCart);
   }
 
-  renderProduct({ sku, imageUrl, name, amount, container }) {
-    const listItem = this.templates.getNewShoppingCartListItem();
+  #renderProduct({ sku, imageUrl, name, amount, container }) {
+    const listItem = this.#templates.getNewShoppingCartListItem();
 
     const imageElement = listItem.querySelector(
       'slot[name="product-image"] img',
@@ -176,58 +159,77 @@ class ShoppingCart extends HTMLElement {
 
     listItem.querySelector("button").onclick = () => {
       removeProductFromCart(sku);
-      this.logEventRemoveFromCart({ sku, name, amount });
-      this.renderShoppingCart();
+      logEventRemoveFromCart({ sku, name, amount });
+      this.#renderShoppingCart();
     };
 
     container.appendChild(listItem);
   }
 
-  renderSummary(products) {
-    const summary = this.templates.shoppingCartSummary;
+  #renderSummary(products) {
+    const summary = this.#templates.getNewShoppingCartSummary();
     const subTotal = calculateTotal(products);
     summary.querySelector('slot[name="subtotal"]').innerText =
       formatPrice(subTotal);
     this.appendChild(summary);
   }
 
-  renderErrorMessage(message) {
-    this.templates.alertError.querySelector(
+  #renderErrorMessage(message) {
+    this.#templates.alertError.querySelector(
       'slot[name="error-message"]',
     ).innerText = message;
-    this.append(this.templates.alertError);
-  }
-
-  logEventViewCart(products) {
-    const itemsForGoogleTag = products.map(({ sku, name, amount }) => {
-      return {
-        item_id: sku,
-        item_name: name,
-        price: Number(amount),
-        quantity: 1,
-      };
-    });
-
-    gtag("event", "view_cart", {
-      currency: "USD",
-      value: calculateTotal(products),
-      items: itemsForGoogleTag,
-    });
-  }
-
-  logEventRemoveFromCart({ sku, name, amount }) {
-    gtag("event", "remove_from_cart", {
-      currency: "USD",
-      value: Number(amount),
-      items: [
-        {
-          item_id: sku,
-          item_name: name,
-          quantity: 1,
-        },
-      ],
-    });
+    this.append(this.#templates.alertError);
   }
 }
 
 window.customElements.define("shopping-cart", ShoppingCart);
+
+function getSelectedProductsFromLocalStorage(products) {
+  const { products: cartProducts } = getCartLocalStorage();
+
+  const foundProducts = products.filter(({ sku, quantity }) => {
+    const result = cartProducts.find(({ id: cartId }) => {
+      const isSold = quantity === 0;
+      if (isSold && cartId === sku) {
+        removeProductFromCart(cartId);
+        return;
+      } else if (cartId === sku) {
+        return true;
+      }
+    });
+    return Boolean(result);
+  });
+
+  return foundProducts;
+}
+
+function logEventViewCart(products) {
+  const itemsForGoogleTag = products.map(({ sku, name, amount }) => {
+    return {
+      item_id: sku,
+      item_name: name,
+      price: Number(amount),
+      quantity: 1,
+    };
+  });
+
+  gtag("event", "view_cart", {
+    currency: "USD",
+    value: calculateTotal(products),
+    items: itemsForGoogleTag,
+  });
+}
+
+function logEventRemoveFromCart({ sku, name, amount }) {
+  gtag("event", "remove_from_cart", {
+    currency: "USD",
+    value: Number(amount),
+    items: [
+      {
+        item_id: sku,
+        item_name: name,
+        quantity: 1,
+      },
+    ],
+  });
+}

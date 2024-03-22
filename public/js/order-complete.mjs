@@ -1,12 +1,14 @@
 import { formatPrice, getTemplate, LOADING_STATES } from "/js/utils.mjs";
 
 class OrderComplete extends HTMLElement {
+  #templates;
+
   constructor() {
     super();
 
     this.order = {};
 
-    this.templates = {
+    this.#templates = {
       loadingSpinner: getTemplate("loading-spinner-template"),
       orderSummary: getTemplate("order-summary-template"),
       alertError: getTemplate("alert-error-template"),
@@ -24,25 +26,25 @@ class OrderComplete extends HTMLElement {
 
   set loadingState(value) {
     if (value === LOADING_STATES.INITIAL || value === LOADING_STATES.PENDING) {
-      this.showLoadingSpinner();
+      this.#showLoadingSpinner();
     } else {
-      this.hideLoadingSpinner();
+      this.#hideLoadingSpinner();
     }
     this.setAttribute("loading-state", value);
   }
 
-  showLoadingSpinner() {
-    this.appendChild(this.templates.loadingSpinner);
+  #showLoadingSpinner() {
+    this.appendChild(this.#templates.loadingSpinner);
   }
 
-  hideLoadingSpinner() {
+  #hideLoadingSpinner() {
     const loadingSpinner = document.querySelector("#loading-spinner");
     if (loadingSpinner) {
       loadingSpinner.remove();
     }
   }
 
-  async fetchOrder(orderId) {
+  async #fetchOrder(orderId) {
     try {
       this.loadingState = LOADING_STATES.PENDING;
       const response = await fetch(
@@ -66,9 +68,9 @@ class OrderComplete extends HTMLElement {
     const paypalOrderId = params.get("paypal-order-id");
 
     if (paypalOrderId) {
-      await this.fetchOrder(paypalOrderId);
+      await this.#fetchOrder(paypalOrderId);
     } else {
-      this.renderErrorMessage("Failed to load order.");
+      this.#renderErrorMessage("Failed to load order.");
     }
   }
 
@@ -79,22 +81,19 @@ class OrderComplete extends HTMLElement {
 
     // wait for products to finish loading before rendering
     if (this.loadingState === LOADING_STATES.RESOLVED) {
-      this.render();
+      this.#render(this.order);
     } else if (this.loadingState === LOADING_STATES.REJECTED) {
-      this.renderErrorMessage("Failed to load order.");
+      this.#renderErrorMessage("Failed to load order.");
     }
   }
 
-  render() {
+  #render({
+    payer_given_name: givenName,
+    gross_amount: grossAmount,
+    line_items: lineItems,
+  }) {
     this.innerHTML = "";
-
-    const orderSummary = this.templates.orderSummary;
-
-    const {
-      payer_given_name: givenName,
-      gross_amount: grossAmount,
-      line_items: lineItems,
-    } = this.order;
+    const orderSummary = this.#templates.orderSummary;
 
     orderSummary.querySelector('slot[name="payer-first-name"]').innerText =
       givenName;
@@ -107,7 +106,7 @@ class OrderComplete extends HTMLElement {
     unorderedList.id = "product-list";
 
     for (const { sku, image_url: imageUrl, name } of lineItems.data) {
-      this.renderProduct({
+      this.#renderProduct({
         container: unorderedList,
         sku,
         imageUrl,
@@ -119,8 +118,8 @@ class OrderComplete extends HTMLElement {
     this.appendChild(unorderedList);
   }
 
-  renderProduct({ sku, imageUrl, name, container }) {
-    const listItem = this.templates.getNewOrderListItem();
+  #renderProduct({ sku, imageUrl, name, container }) {
+    const listItem = this.#templates.getNewOrderListItem();
 
     const imageElement = listItem.querySelector(
       'slot[name="product-image"] img',
@@ -137,11 +136,11 @@ class OrderComplete extends HTMLElement {
     container.appendChild(listItem);
   }
 
-  renderErrorMessage(message) {
-    this.templates.alertError.querySelector(
+  #renderErrorMessage(message) {
+    this.#templates.alertError.querySelector(
       'slot[name="error-message"]',
     ).innerText = message;
-    this.append(this.templates.alertError);
+    this.append(this.#templates.alertError);
   }
 }
 

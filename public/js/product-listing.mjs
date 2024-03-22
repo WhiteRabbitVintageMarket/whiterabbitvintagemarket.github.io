@@ -5,10 +5,12 @@ import {
 import { formatPrice, getTemplate } from "/js/utils.mjs";
 
 class ProductListing extends HTMLElement {
+  #templates;
+
   constructor() {
     super();
 
-    this.templates = {
+    this.#templates = {
       productListing: getTemplate("product-listing-template"),
       modal: getTemplate("modal-template"),
     };
@@ -27,14 +29,12 @@ class ProductListing extends HTMLElement {
       isSold: quantity === 0,
     };
 
-    this.renderProductListing();
+    this.#renderProductListing(this.product);
   }
 
-  renderProductListing() {
-    const productListing = this.templates.productListing;
-    const { sku, imageUrl, name, amount, isSold } = this.product;
-
-    productListing.querySelector("a").href = this.getProductUrl(sku);
+  #renderProductListing({ sku, imageUrl, name, amount, isSold }) {
+    const productListing = this.#templates.productListing;
+    productListing.querySelector("a").href = getProductUrl(sku);
 
     const imageElement = productListing.querySelector(
       'slot[name="product-image"] img',
@@ -54,51 +54,50 @@ class ProductListing extends HTMLElement {
     this.appendChild(productListing);
   }
 
-  showModal(event) {
-    const { sku, imageUrl, name, description } = this.product;
-
-    event.preventDefault();
+  #showModal(product) {
+    const { sku, imageUrl, name, description } = product;
 
     if (!this.querySelector("#modal-container")) {
-      this.addModalContent();
+      this.#addModalContent(product);
     }
 
     this.querySelector("#modal-container").showModal();
 
-    this.updateUrlQueryString({ "product-id": sku });
+    updateUrlQueryString({ "product-id": sku });
 
-    this.updateMetaTags({
+    updateMetaTags({
       name,
       description,
       sku,
       imageUrl,
     });
 
-    this.logEventViewItem();
+    logEventViewItem(product);
 
-    window.addEventListener("keydown", this.closeModalWithEscapeKey.bind(this));
+    window.addEventListener(
+      "keydown",
+      this.#closeModalWithEscapeKey.bind(this),
+    );
 
     // prevent background scrolling
     // https://css-tricks.com/prevent-page-scrolling-when-a-modal-is-open/
     document.body.classList.add("h-screen", "overflow-y-hidden");
     document.body.style.top = `-${window.scrollY}px`;
     document.body.style.position = "fixed";
-
-    this.isModalDisplayed = true;
   }
 
-  addModalContent() {
-    const {
-      sku,
-      imageUrl,
-      name,
-      amount,
-      description,
-      size,
-      instagramUrl,
-      isSold,
-    } = this.product;
-    const modal = this.templates.modal;
+  #addModalContent({
+    sku,
+    imageUrl,
+    name,
+    amount,
+    description,
+    size,
+    instagramUrl,
+    isSold,
+    quantity,
+  }) {
+    const modal = this.#templates.modal;
 
     modal.querySelector('slot[name="modal-title"]').innerText = name;
     modal.querySelector('slot[name="product-image"] img').src = imageUrl;
@@ -129,112 +128,29 @@ class ProductListing extends HTMLElement {
       buttonAddToCart.disabled = true;
     } else {
       buttonAddToCart.onclick = () => {
-        this.addProductToCart();
+        addProductToCartLocalStorage(sku);
+        logEventAddToCart({ sku, name, amount, quantity });
         buttonAddToCart.innerText = "Added to Cart";
         buttonAddToCart.disabled = true;
       };
     }
     modal.querySelector("#modal-close").onclick = (event) => {
       event.preventDefault();
-      this.closeModal();
+      this.#closeModal();
     };
 
     this.appendChild(modal);
   }
 
-  getProductUrl(productId) {
-    const { pathname, search } = new URL(window.location.href);
-    const params = new URLSearchParams(search);
-    if (productId) {
-      params.set("product-id", productId);
-    } else {
-      params.delete("product-id");
-    }
-
-    return params.size ? `${pathname}?${params.toString()}` : pathname;
-  }
-
-  updateUrlQueryString(queryParams) {
-    // product-id is currently the only dynamic query param
-    const newUrl = this.getProductUrl(queryParams["product-id"]);
-    history.replaceState(null, null, newUrl);
-  }
-
-  updateMetaTags({ name, description, sku, imageUrl }) {
-    const updateMetaTag = ({ name, value }) => {
-      const attributeName = name.startsWith("og:") ? "property" : "name";
-      let metaElement = document.querySelector(
-        `meta[${attributeName}="${name}"]`,
-      );
-
-      if (metaElement) {
-        metaElement.setAttribute("content", value);
-      } else {
-        metaElement = document.createElement("meta");
-        metaElement.setAttribute(attributeName, name);
-        metaElement.setAttribute("content", value);
-        document.head.appendChild(metaElement);
-      }
-    };
-
-    updateMetaTag({ name: "og:title", value: name });
-    updateMetaTag({ name: "description", value: description });
-    updateMetaTag({ name: "og:description", value: description });
-    updateMetaTag({ name: "og:image", value: imageUrl });
-
-    const productUrl = sku
-      ? `${window.location.origin}${this.getProductUrl(sku)}`
-      : "";
-    updateMetaTag({ name: "og:url", value: productUrl });
-  }
-
-  addProductToCart() {
-    addProductToCartLocalStorage(this.product.sku);
-    this.logEventAddToCart();
-  }
-
-  logEventViewItem() {
-    const { sku, name, amount, quantity } = this.product;
-
-    gtag("event", "view_item", {
-      currency: "USD",
-      value: Number(amount),
-      items: [
-        {
-          item_id: sku,
-          item_name: name,
-          quantity,
-        },
-      ],
-    });
-  }
-
-  logEventAddToCart() {
-    const { sku, name, amount, quantity } = this.product;
-
-    gtag("event", "add_to_cart", {
-      currency: "USD",
-      value: Number(amount),
-      items: [
-        {
-          item_id: sku,
-          item_name: name,
-          quantity,
-        },
-      ],
-    });
-  }
-
-  closeModal() {
+  #closeModal() {
     const modalContainer = this.querySelector("#modal-container");
     if (!modalContainer) {
       return;
     }
 
     modalContainer.close();
-    // modalContainer.remove();
-    this.updateUrlQueryString({ "product-id": "" });
-    this.updateMetaTags({
+    updateUrlQueryString({ "product-id": "" });
+    updateMetaTags({
       name: "",
       description: "",
       sku: "",
@@ -243,7 +159,7 @@ class ProductListing extends HTMLElement {
 
     window.removeEventListener(
       "keydown",
-      this.closeModalWithEscapeKey.bind(this),
+      this.#closeModalWithEscapeKey.bind(this),
     );
 
     // prevent background scrolling
@@ -255,17 +171,17 @@ class ProductListing extends HTMLElement {
     window.scrollTo(0, parseInt(scrollY || "0") * -1);
   }
 
-  closeModalWithEscapeKey(event) {
+  #closeModalWithEscapeKey(event) {
     if (event.code === "Escape") {
-      this.closeModal();
+      this.#closeModal();
     }
   }
 
   connectedCallback() {
-    this.querySelector("a").addEventListener(
-      "click",
-      this.showModal.bind(this),
-    );
+    this.querySelector("a").addEventListener("click", (event) => {
+      event.preventDefault();
+      this.#showModal(this.product);
+    });
 
     const params = new URLSearchParams(window.location.search);
     const productId = params.get("product-id");
@@ -276,3 +192,77 @@ class ProductListing extends HTMLElement {
 }
 
 window.customElements.define("product-listing", ProductListing);
+
+function getProductUrl(productId) {
+  const { pathname, search } = new URL(window.location.href);
+  const params = new URLSearchParams(search);
+  if (productId) {
+    params.set("product-id", productId);
+  } else {
+    params.delete("product-id");
+  }
+
+  return params.size ? `${pathname}?${params.toString()}` : pathname;
+}
+
+function updateUrlQueryString(queryParams) {
+  // product-id is currently the only dynamic query param
+  const newUrl = getProductUrl(queryParams["product-id"]);
+  history.replaceState(null, null, newUrl);
+}
+
+function updateMetaTags({ name, description, sku, imageUrl }) {
+  const updateMetaTag = ({ name, value }) => {
+    const attributeName = name.startsWith("og:") ? "property" : "name";
+    let metaElement = document.querySelector(
+      `meta[${attributeName}="${name}"]`,
+    );
+
+    if (metaElement) {
+      metaElement.setAttribute("content", value);
+    } else {
+      metaElement = document.createElement("meta");
+      metaElement.setAttribute(attributeName, name);
+      metaElement.setAttribute("content", value);
+      document.head.appendChild(metaElement);
+    }
+  };
+
+  updateMetaTag({ name: "og:title", value: name });
+  updateMetaTag({ name: "description", value: description });
+  updateMetaTag({ name: "og:description", value: description });
+  updateMetaTag({ name: "og:image", value: imageUrl });
+
+  const productUrl = sku
+    ? `${window.location.origin}${getProductUrl(sku)}`
+    : "";
+  updateMetaTag({ name: "og:url", value: productUrl });
+}
+
+function logEventViewItem({ sku, name, amount, quantity }) {
+  gtag("event", "view_item", {
+    currency: "USD",
+    value: Number(amount),
+    items: [
+      {
+        item_id: sku,
+        item_name: name,
+        quantity,
+      },
+    ],
+  });
+}
+
+function logEventAddToCart({ sku, name, amount, quantity }) {
+  gtag("event", "add_to_cart", {
+    currency: "USD",
+    value: Number(amount),
+    items: [
+      {
+        item_id: sku,
+        item_name: name,
+        quantity,
+      },
+    ],
+  });
+}
