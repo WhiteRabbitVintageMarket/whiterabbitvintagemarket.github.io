@@ -6,10 +6,26 @@ import {
 
 import { shoppingCartRenderEventName } from "/js/shopping-cart.mjs";
 
-class PayPalButtons extends HTMLElement {
+class PayPalStandaloneButton extends HTMLElement {
   constructor() {
     super();
+    this.paypalCheckoutSession = null;
     this.buttonReference = null;
+  }
+
+  async getBrowserSafeClientToken() {
+    const response = await fetch(
+      `${window.config.apiBaseUrl}/api/browser-safe-client-token`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      },
+    );
+
+    const { browser_safe_access_token } = await response.json();
+    return browser_safe_access_token;
   }
 
   async createOrder() {
@@ -94,24 +110,43 @@ class PayPalButtons extends HTMLElement {
     }
   }
 
-  render() {
+  async onClick() {
+    const orderIdPromise = this.createOrder().then((id) => {
+      return { orderId: id };
+    });
+    try {
+      await this.paypalCheckoutSession.start(
+        { paymentFlow: "auto" },
+        orderIdPromise,
+      );
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  async onLoad() {
     const { products } = getCartLocalStorage();
     if (products.length === 0) {
       return;
     }
 
-    this.buttonReference = window.paypal.Buttons({
-      createOrder: this.createOrder.bind(this),
+    const clientToken = await this.getBrowserSafeClientToken();
+    const sdkInstance = await window.paypal.createInstance({ clientToken });
+    this.paypalCheckoutSession = sdkInstance.paypal.createCheckout({
       onApprove: this.onApprove.bind(this),
       onShippingAddressChange: this.onShippingAddressChange.bind(this),
     });
 
-    this.buttonReference.render(this);
+    const paypalButton = document.createElement("paypal-button");
+    paypalButton.classList.add("w-full");
+    paypalButton.onclick = this.onClick.bind(this);
+    this.appendChild(paypalButton);
+    this.buttonReference = document.querySelector("paypal-button");
   }
 
   close() {
     if (this.buttonReference) {
-      this.buttonReference.close();
+      this.buttonReference.remove();
       this.buttonReference = null;
     }
   }
@@ -121,7 +156,7 @@ class PayPalButtons extends HTMLElement {
       if (this.buttonReference) {
         return;
       }
-      this.render();
+      this.onLoad();
     });
 
     window.addEventListener(updateCartEventName, ({ detail }) => {
@@ -151,4 +186,7 @@ class PayPalButtons extends HTMLElement {
   }
 }
 
-window.customElements.define("paypal-buttons", PayPalButtons);
+window.customElements.define(
+  "paypal-standalone-button",
+  PayPalStandaloneButton,
+);

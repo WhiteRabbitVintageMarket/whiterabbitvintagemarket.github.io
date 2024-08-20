@@ -1,0 +1,82 @@
+---
+layout: layouts/base.njk
+title: Shopping Cart - White Rabbit Vintage Market
+description: Artfully curated vintage items to bring curiousity & intrigue to your home
+---
+
+<div class="mx-6 my-6">
+  <h2 class="text-3xl">Shopping Cart</h2>
+
+  <shopping-cart class="block mt-10"></shopping-cart>
+
+  <div class="mt-8 flex sm:justify-end">
+    <paypal-standalone-button class="block grow sm:grow-0 sm:min-w-96 sm:max-w-sm"></paypal-standalone-button>
+  </div>
+</div>
+
+<template id="shopping-cart-list-item-template">
+  <li class="flex flex-wrap justify-start items-start min-h-32 my-4 pb-4 border-b border-stone-300">
+    <slot name="product-image">
+      <img class="w-32 object-cover aspect-square bg-stone-300 mr-4" src="">
+    </slot>
+    <p class="grow basis-1/5">
+      <slot name="product-name">
+        <a href="javascript:void(0);" class="hover:underline">PRODUCT NAME</a>
+      </slot>
+    </p>
+    <div class="w-full sm:w-40 order-2 sm:order-none flex justify-end ml-4">
+      <slot name="product-amount">PRODUCT PRICE</slot>
+    </div>
+    <button type="button" class="ml-6">
+      <svg class="fill-current" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 18">
+        <path d="M14.53 4.53l-1.06-1.06L9 7.94 4.53 3.47 3.47 4.53 7.94 9l-4.47 4.47 1.06 1.06L9 10.06l4.47 4.47 1.06-1.06L10.06 9z"></path>
+      </svg>
+    </button>
+  </li>
+</template>
+
+<template id="shopping-cart-empty-template">
+  <p>You have nothing in your shopping cart.</p>
+  <div class="my-10">
+    <a href="/shop" class="mt-4 w-full bg-stone-950 custom-text-pure-white hover:bg-stone-700 disabled:bg-stone-700 focus:ring-4 focus:ring-blue-300 focus:outline-none text-lg rounded-lg px-5 py-2.5">Continue Shopping</a>
+  </div>
+</template>
+
+<template id="shopping-cart-summary-template">
+  <div class="flex justify-between sm:justify-end">
+    <p class="sm:mr-72">Subtotal</p>
+    <p><slot name="subtotal">SUBTOTAL</slot></p>
+  </div>
+</template>
+
+<template id="loading-spinner-template">
+  <div class="flex justify-center my-4">
+    <div id="loading-spinner" class="animate-spin inline-block w-8 h-8 border-[3px] border-current border-t-transparent text-stone-700 rounded-full" role="status" aria-label="loading">
+      <span class="sr-only">Loading...</span>
+    </div>
+  </div>
+</template>
+
+<template id="alert-paypal-buttons-error-template">
+  <div class="alert-error mb-8 bg-red-100 border border-red-300 text-red-800 p-4 pr-12 rounded relative" role="alert">
+    <slot name="error-message">ERROR MESSAGE</slot>
+    <button type="button" class="absolute top-0 right-0 p-4">
+      <svg class="fill-current" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 18 18">
+        <path d="M14.53 4.53l-1.06-1.06L9 7.94 4.53 3.47 3.47 4.53 7.94 9l-4.47 4.47 1.06 1.06L9 10.06l4.47 4.47 1.06-1.06L10.06 9z"></path>
+      </svg>
+    </button>
+  </div>
+</template>
+
+<template id="alert-error-template">
+  <div class="flex justify-center my-4 sm:col-span-2 md:col-span-3 lg:col-span-5">
+    <div class="alert-error w-full text-xl mb-8 bg-red-100 border border-red-300 text-red-800 p-4 rounded relative" role="alert">
+      <slot name="error-message">ERROR MESSAGE</slot>
+    </div>
+  </div>
+</template>
+
+<script type="module" src="/js/shopping-cart.mjs"></script>
+<script src="https://www.sandbox.paypal.com/web-sdk/v6-alpha/core"></script>
+<script src="https://www.sandbox.paypal.com/web-sdk/v6-alpha/paypal-payments"></script>
+<script type="module" src="/js/paypal-buttons-v6.mjs"></script>

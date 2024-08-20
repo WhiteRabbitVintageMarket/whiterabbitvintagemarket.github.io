@@ -24,7 +24,8 @@ class ShoppingCart extends HTMLElement {
       loadingSpinner: getTemplate("loading-spinner-template"),
       shoppingCartEmpty: getTemplate("shopping-cart-empty-template"),
       alertError: getTemplate("alert-error-template"),
-      getNewShoppingCartSummary: () => getTemplate("shopping-cart-summary-template"),
+      getNewShoppingCartSummary: () =>
+        getTemplate("shopping-cart-summary-template"),
       getNewShoppingCartListItem: () =>
         getTemplate("shopping-cart-list-item-template"),
     };
