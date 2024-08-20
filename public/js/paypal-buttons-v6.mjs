@@ -6,11 +6,14 @@ import {
 
 import { shoppingCartRenderEventName } from "/js/shopping-cart.mjs";
 
-class PayPalStandaloneButton extends HTMLElement {
+class PayPalStandaloneButtons extends HTMLElement {
   constructor() {
     super();
     this.paypalCheckoutSession = null;
-    this.buttonReference = null;
+    this.paypalButtonReference = null;
+
+    this.venmoCheckoutSession = null;
+    this.venmoButtonReference = null;
   }
 
   async getBrowserSafeClientToken() {
@@ -110,13 +113,27 @@ class PayPalStandaloneButton extends HTMLElement {
     }
   }
 
-  async onClick() {
+  async onPayPalClick() {
     const orderIdPromise = this.createOrder().then((id) => {
       return { orderId: id };
     });
     try {
       await this.paypalCheckoutSession.start(
         { paymentFlow: "auto" },
+        orderIdPromise,
+      );
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  async onVenmoClick() {
+    const orderIdPromise = this.createOrder().then((id) => {
+      return { orderId: id };
+    });
+    try {
+      await this.venmoCheckoutSession.start(
+        { paymentFlow: "popup" },
         orderIdPromise,
       );
     } catch (error) {
@@ -132,28 +149,62 @@ class PayPalStandaloneButton extends HTMLElement {
 
     const clientToken = await this.getBrowserSafeClientToken();
     const sdkInstance = await window.paypal.createInstance({ clientToken });
-    this.paypalCheckoutSession = sdkInstance.paypal.createCheckout({
-      onApprove: this.onApprove.bind(this),
-      onShippingAddressChange: this.onShippingAddressChange.bind(this),
-    });
 
+    // TODO: replace this with a real eligibility call
+    const elgibility = await sdkInstance.getFundingEligibilityMock();
+
+    if (elgibility.isEligible("paypal")) {
+      this.paypalCheckoutSession = sdkInstance.paypal.createCheckout({
+        onApprove: this.onApprove.bind(this),
+        onShippingAddressChange: this.onShippingAddressChange.bind(this),
+      });
+
+      this.renderPayPalButton();
+    }
+
+    if (elgibility.isEligible("venmo")) {
+      this.venmoCheckoutSession = sdkInstance.venmo.createCheckout({
+        onApprove: this.onApprove.bind(this),
+        onShippingAddressChange: this.onShippingAddressChange.bind(this),
+      });
+
+      this.renderVenmoButton();
+    }
+  }
+
+  renderPayPalButton() {
     const paypalButton = document.createElement("paypal-button");
-    paypalButton.classList.add("w-full");
-    paypalButton.onclick = this.onClick.bind(this);
+    paypalButton.classList.add("w-full", "mb-3.5");
+    paypalButton.onclick = this.onPayPalClick.bind(this);
+
     this.appendChild(paypalButton);
-    this.buttonReference = document.querySelector("paypal-button");
+    this.paypalButtonReference = document.querySelector("paypal-button");
+  }
+
+  renderVenmoButton() {
+    const venmoButton = document.createElement("venmo-button");
+    venmoButton.classList.add("w-full");
+    venmoButton.onclick = this.onVenmoClick.bind(this);
+
+    this.appendChild(venmoButton);
+    this.venmoButtonReference = document.querySelector("venmo-button");
   }
 
   close() {
-    if (this.buttonReference) {
-      this.buttonReference.remove();
-      this.buttonReference = null;
+    if (this.paypalButtonReference) {
+      this.paypalButtonReference.remove();
+      this.paypalButtonReference = null;
+    }
+
+    if (this.venmoButtonReference) {
+      this.venmoButtonReference.remove();
+      this.venmoButtonReference = null;
     }
   }
 
   connectedCallback() {
     window.addEventListener(shoppingCartRenderEventName, () => {
-      if (this.buttonReference) {
+      if (this.paypalButtonReference) {
         return;
       }
       this.onLoad();
@@ -187,6 +238,6 @@ class PayPalStandaloneButton extends HTMLElement {
 }
 
 window.customElements.define(
-  "paypal-standalone-button",
-  PayPalStandaloneButton,
+  "paypal-standalone-buttons",
+  PayPalStandaloneButtons,
 );
