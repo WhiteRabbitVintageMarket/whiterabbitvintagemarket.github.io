@@ -71,7 +71,7 @@ class PayPalStandaloneButtons extends HTMLElement {
     }
   }
 
-  async onApprove({ orderID }) {
+  async onApprove({ orderId }) {
     try {
       const response = await fetch(
         `${window.config.apiBaseUrl}/api/shopping-cart/complete-checkout`,
@@ -80,7 +80,7 @@ class PayPalStandaloneButtons extends HTMLElement {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ id: orderID }),
+          body: JSON.stringify({ id: orderId }),
         },
       );
 
