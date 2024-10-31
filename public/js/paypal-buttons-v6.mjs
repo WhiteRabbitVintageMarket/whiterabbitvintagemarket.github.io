@@ -153,7 +153,7 @@ class PayPalStandaloneButtons extends HTMLElement {
     const elgibility = await sdkInstance.getFundingEligibility();
 
     if (elgibility.isEligible("paypal")) {
-      this.paypalCheckoutSession = sdkInstance.paypal.createCheckout({
+      this.paypalCheckoutSession = sdkInstance.createPayPalCheckout({
         onApprove: this.onApprove.bind(this),
         onShippingAddressChange: this.onShippingAddressChange.bind(this),
       });
@@ -162,7 +162,7 @@ class PayPalStandaloneButtons extends HTMLElement {
     }
 
     if (elgibility.isEligible("venmo")) {
-      this.venmoCheckoutSession = sdkInstance.venmo.createCheckout({
+      this.venmoCheckoutSession = sdkInstance.createVenmoCheckout({
         onApprove: this.onApprove.bind(this),
         onShippingAddressChange: this.onShippingAddressChange.bind(this),
       });
