@@ -119,7 +119,7 @@ class PayPalStandaloneButtons extends HTMLElement {
     });
     try {
       await this.paypalCheckoutSession.start(
-        { paymentFlow: "auto" },
+        { paymentFlow: "payment-handler" },
         orderIdPromise,
       );
     } catch (error) {
@@ -155,7 +155,7 @@ class PayPalStandaloneButtons extends HTMLElement {
     if (elgibility.isEligible("paypal")) {
       this.paypalCheckoutSession = sdkInstance.createPayPalCheckout({
         onApprove: this.onApprove.bind(this),
-        onShippingAddressChange: this.onShippingAddressChange.bind(this),
+        // onShippingAddressChange: this.onShippingAddressChange.bind(this),
       });
 
       this.renderPayPalButton();
