@@ -117,13 +117,18 @@ class PayPalStandaloneButtons extends HTMLElement {
     const orderIdPromise = this.createOrder().then((id) => {
       return { orderId: id };
     });
+
+    const params = new URLSearchParams(window.location.search);
+    const usePaymentHandler = params.get("payment-handler");
+    const paymentFlow = usePaymentHandler === "true" ? "payment-handler" : "auto";
+
     try {
       await this.paypalCheckoutSession.start(
-        { paymentFlow: "payment-handler" },
+        { paymentFlow },
         orderIdPromise,
       );
     } catch (error) {
-      console.error(error);
+        console.error(error);
     }
   }
 
@@ -161,7 +166,7 @@ class PayPalStandaloneButtons extends HTMLElement {
       this.renderPayPalButton();
     }
 
-    if (elgibility.isEligible("venmo")) {
+    if (elgibility.isEligible("venmo") && sdkInstance.createVenmoCheckout) {
       this.venmoCheckoutSession = sdkInstance.createVenmoCheckout({
         onApprove: this.onApprove.bind(this),
         onShippingAddressChange: this.onShippingAddressChange.bind(this),
