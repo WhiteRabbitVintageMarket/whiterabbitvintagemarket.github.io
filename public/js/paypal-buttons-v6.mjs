@@ -155,7 +155,7 @@ class PayPalStandaloneButtons extends HTMLElement {
     const clientToken = await this.getBrowserSafeClientToken();
     const sdkInstance = await window.paypal.createInstance({ clientToken });
 
-    const elgibility = await sdkInstance.getFundingEligibility();
+    const elgibility = await sdkInstance.findEligibleMethods();
 
     if (elgibility.isEligible("paypal")) {
       this.paypalCheckoutSession = sdkInstance.createPayPalCheckout({
