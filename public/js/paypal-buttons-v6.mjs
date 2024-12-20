@@ -138,7 +138,7 @@ class PayPalStandaloneButtons extends HTMLElement {
     });
     try {
       await this.venmoCheckoutSession.start(
-        { paymentFlow: "popup" },
+        { paymentFlow: "auto" },
         orderIdPromise,
       );
     } catch (error) {
