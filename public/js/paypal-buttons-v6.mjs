@@ -178,6 +178,7 @@ class PayPalStandaloneButtons extends HTMLElement {
 
   renderPayPalButton() {
     const paypalButton = document.createElement("paypal-button");
+    paypalButton.type = "pay";
     paypalButton.classList.add("w-full", "mb-3.5");
     paypalButton.onclick = this.onPayPalClick.bind(this);
 
@@ -187,6 +188,7 @@ class PayPalStandaloneButtons extends HTMLElement {
 
   renderVenmoButton() {
     const venmoButton = document.createElement("venmo-button");
+    venmoButton.type = "pay";
     venmoButton.classList.add("w-full");
     venmoButton.onclick = this.onVenmoClick.bind(this);
 
