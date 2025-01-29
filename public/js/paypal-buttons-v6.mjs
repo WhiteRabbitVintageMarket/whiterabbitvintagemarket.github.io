@@ -169,7 +169,6 @@ class PayPalStandaloneButtons extends HTMLElement {
     if (elgibility.isEligible("venmo") && sdkInstance.createVenmoCheckout) {
       this.venmoCheckoutSession = sdkInstance.createVenmoCheckout({
         onApprove: this.onApprove.bind(this),
-        onShippingAddressChange: this.onShippingAddressChange.bind(this),
       });
 
       this.renderVenmoButton();
