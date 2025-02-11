@@ -9,10 +9,10 @@ import { shoppingCartRenderEventName } from "/js/shopping-cart.mjs";
 class PayPalStandaloneButtons extends HTMLElement {
   constructor() {
     super();
-    this.paypalCheckoutSession = null;
+    this.paypalOneTimePaymentSession = null;
     this.paypalButtonReference = null;
 
-    this.venmoCheckoutSession = null;
+    this.venmoOneTimePaymentSession = null;
     this.venmoButtonReference = null;
   }
 
@@ -123,7 +123,7 @@ class PayPalStandaloneButtons extends HTMLElement {
     const paymentFlow = usePaymentHandler === "true" ? "payment-handler" : "auto";
 
     try {
-      await this.paypalCheckoutSession.start(
+      await this.paypalOneTimePaymentSession.start(
         { paymentFlow },
         orderIdPromise,
       );
@@ -137,7 +137,7 @@ class PayPalStandaloneButtons extends HTMLElement {
       return { orderId: id };
     });
     try {
-      await this.venmoCheckoutSession.start(
+      await this.venmoOneTimePaymentSession.start(
         { paymentFlow: "auto" },
         orderIdPromise,
       );
@@ -158,7 +158,7 @@ class PayPalStandaloneButtons extends HTMLElement {
     const elgibility = await sdkInstance.findEligibleMethods();
 
     if (elgibility.isEligible("paypal")) {
-      this.paypalCheckoutSession = sdkInstance.createPayPalCheckout({
+      this.paypalOneTimePaymentSession = sdkInstance.createPayPalOneTimePaymentSession({
         onApprove: this.onApprove.bind(this),
         // onShippingAddressChange: this.onShippingAddressChange.bind(this),
       });
@@ -166,8 +166,8 @@ class PayPalStandaloneButtons extends HTMLElement {
       this.renderPayPalButton();
     }
 
-    if (elgibility.isEligible("venmo") && sdkInstance.createVenmoCheckout) {
-      this.venmoCheckoutSession = sdkInstance.createVenmoCheckout({
+    if (elgibility.isEligible("venmo")) {
+      this.venmoOneTimePaymentSession = sdkInstance.createVenmoOneTimePaymentSession({
         onApprove: this.onApprove.bind(this),
       });
 
