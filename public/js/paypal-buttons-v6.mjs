@@ -120,11 +120,11 @@ class PayPalStandaloneButtons extends HTMLElement {
 
     const params = new URLSearchParams(window.location.search);
     const usePaymentHandler = params.get("payment-handler");
-    const paymentFlow = usePaymentHandler === "true" ? "payment-handler" : "auto";
+    const presentationMode = usePaymentHandler === "true" ? "payment-handler" : "auto";
 
     try {
       await this.paypalOneTimePaymentSession.start(
-        { paymentFlow },
+        { presentationMode },
         orderIdPromise,
       );
     } catch (error) {
@@ -138,7 +138,7 @@ class PayPalStandaloneButtons extends HTMLElement {
     });
     try {
       await this.venmoOneTimePaymentSession.start(
-        { paymentFlow: "auto" },
+        { presentationMode: "auto" },
         orderIdPromise,
       );
     } catch (error) {
