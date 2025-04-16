@@ -3,6 +3,8 @@ class PayPalStandaloneButtonsV5 extends HTMLElement {
     super();
     this.paypalButtonReference = null;
     this.venmoButtonReference = null;
+    this.paypalRenderComplete = false;
+    this.venmoRenderComplete = false;
   }
 
   async createOrder() {
@@ -130,17 +132,19 @@ class PayPalStandaloneButtonsV5 extends HTMLElement {
     paypalButtonContainer.classList.add("w-full", "mb-2");
     this.appendChild(paypalButtonContainer);
 
-
     this.buttonReference = window.paypal.Buttons({
       fundingSource: "paypal",
       style: {
-        label: "pay"
+        label: "pay",
       },
       createOrder: this.createOrder.bind(this),
       onApprove: this.onApprove.bind(this),
     });
 
-    this.buttonReference.render(paypalButtonContainer);
+    this.buttonReference.render(paypalButtonContainer).then(() => {
+      this.paypalRenderComplete = true;
+      this.renderCompleteMessage();
+    });
   }
 
   renderVenmoButton() {
@@ -151,13 +155,16 @@ class PayPalStandaloneButtonsV5 extends HTMLElement {
     this.buttonReference = window.paypal.Buttons({
       fundingSource: "venmo",
       style: {
-        label: "pay"
+        label: "pay",
       },
       createOrder: this.createOrder.bind(this),
       onApprove: this.onApprove.bind(this),
     });
 
-    this.buttonReference.render(venmoButtonContainer);
+    this.buttonReference.render(venmoButtonContainer).then(() => {
+      this.venmoRenderComplete = true;
+      this.renderCompleteMessage();
+    });
   }
 
   close() {
@@ -174,6 +181,17 @@ class PayPalStandaloneButtonsV5 extends HTMLElement {
 
   connectedCallback() {
     this.onLoad();
+  }
+
+  renderCompleteMessage() {
+    if (this.paypalRenderComplete && this.venmoRenderComplete) {
+      const message = document.createElement("p");
+      message.classList.add("text-2xl", "mt-5");
+      message.innerText = "Loading complete!";
+      setTimeout(() => {
+        this.append(message);
+      }, 500);
+    }
   }
 
   renderErrorMessage(message) {
