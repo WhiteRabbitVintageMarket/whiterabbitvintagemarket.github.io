@@ -1,39 +1,13 @@
-import {
-  getCartLocalStorage,
-  updateCartEventName,
-  setCartLocalStorage,
-} from "/js/shopping-cart-local-storage.mjs";
-
-import { shoppingCartRenderEventName } from "/js/shopping-cart.mjs";
-
-class PayPalStandaloneButtons extends HTMLElement {
+class PayPalStandaloneButtonsV5 extends HTMLElement {
   constructor() {
     super();
-    this.paypalOneTimePaymentSession = null;
     this.paypalButtonReference = null;
-
-    this.venmoOneTimePaymentSession = null;
     this.venmoButtonReference = null;
-  }
-
-  async getBrowserSafeClientToken() {
-    const response = await fetch(
-      `${window.config.apiBaseUrl}/api/browser-safe-client-token`,
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      },
-    );
-
-    const { browser_safe_access_token } = await response.json();
-    return browser_safe_access_token;
   }
 
   async createOrder() {
     try {
-      const { products } = getCartLocalStorage();
+      const { products } = { products: [{ id: "RMJ00001", quantity: 1 }] };
       const data = products.map(({ id, quantity }) => {
         return { sku: id, quantity };
       });
@@ -89,7 +63,6 @@ class PayPalStandaloneButtons extends HTMLElement {
       const errorDetail = orderData?.details?.[0];
 
       if (orderData.id && orderData.status === "COMPLETED") {
-        setCartLocalStorage({ products: [] });
         window.location.href = `/order-complete/?paypal-order-id=${orderData.id}`;
       } else if (errorDetail) {
         throw new Error(`${errorDetail.description} (${orderData.debug_id})`);
@@ -148,54 +121,43 @@ class PayPalStandaloneButtons extends HTMLElement {
   }
 
   async onLoad() {
-    const { products } = getCartLocalStorage();
-    if (products.length === 0) {
-      return;
-    }
-
-    const clientToken = await this.getBrowserSafeClientToken();
-    const sdkInstance = await window.paypal.createInstance({ clientToken });
-
-    const elgibility = await sdkInstance.findEligibleMethods();
-
-    if (elgibility.isEligible("paypal")) {
-      this.paypalOneTimePaymentSession =
-        sdkInstance.createPayPalOneTimePaymentSession({
-          onApprove: this.onApprove.bind(this),
-          // onShippingAddressChange: this.onShippingAddressChange.bind(this),
-        });
-
-      this.renderPayPalButton();
-    }
-
-    if (elgibility.isEligible("venmo")) {
-      this.venmoOneTimePaymentSession =
-        sdkInstance.createVenmoOneTimePaymentSession({
-          onApprove: this.onApprove.bind(this),
-        });
-
-      this.renderVenmoButton();
-    }
+    this.renderPayPalButton();
+    this.renderVenmoButton();
   }
 
   renderPayPalButton() {
-    const paypalButton = document.createElement("paypal-button");
-    paypalButton.type = "pay";
-    paypalButton.classList.add("w-full", "mb-3.5");
-    paypalButton.onclick = this.onPayPalClick.bind(this);
+    const paypalButtonContainer = document.createElement("div");
+    paypalButtonContainer.classList.add("w-full", "mb-2");
+    this.appendChild(paypalButtonContainer);
 
-    this.appendChild(paypalButton);
-    this.paypalButtonReference = document.querySelector("paypal-button");
+
+    this.buttonReference = window.paypal.Buttons({
+      fundingSource: "paypal",
+      style: {
+        label: "pay"
+      },
+      createOrder: this.createOrder.bind(this),
+      onApprove: this.onApprove.bind(this),
+    });
+
+    this.buttonReference.render(paypalButtonContainer);
   }
 
   renderVenmoButton() {
-    const venmoButton = document.createElement("venmo-button");
-    venmoButton.type = "pay";
-    venmoButton.classList.add("w-full");
-    venmoButton.onclick = this.onVenmoClick.bind(this);
+    const venmoButtonContainer = document.createElement("div");
+    venmoButtonContainer.classList.add("w-full");
+    this.appendChild(venmoButtonContainer);
 
-    this.appendChild(venmoButton);
-    this.venmoButtonReference = document.querySelector("venmo-button");
+    this.buttonReference = window.paypal.Buttons({
+      fundingSource: "venmo",
+      style: {
+        label: "pay"
+      },
+      createOrder: this.createOrder.bind(this),
+      onApprove: this.onApprove.bind(this),
+    });
+
+    this.buttonReference.render(venmoButtonContainer);
   }
 
   close() {
@@ -211,19 +173,7 @@ class PayPalStandaloneButtons extends HTMLElement {
   }
 
   connectedCallback() {
-    window.addEventListener(shoppingCartRenderEventName, () => {
-      if (this.paypalButtonReference) {
-        return;
-      }
-      this.onLoad();
-    });
-
-    window.addEventListener(updateCartEventName, ({ detail }) => {
-      const { products } = detail.shoppingCart;
-      if (products.length === 0) {
-        this.close();
-      }
-    });
+    this.onLoad();
   }
 
   renderErrorMessage(message) {
@@ -246,6 +196,6 @@ class PayPalStandaloneButtons extends HTMLElement {
 }
 
 window.customElements.define(
-  "paypal-standalone-buttons",
-  PayPalStandaloneButtons,
+  "paypal-standalone-buttons-v5",
+  PayPalStandaloneButtonsV5,
 );

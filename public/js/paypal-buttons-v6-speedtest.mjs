@@ -1,12 +1,4 @@
-import {
-  getCartLocalStorage,
-  updateCartEventName,
-  setCartLocalStorage,
-} from "/js/shopping-cart-local-storage.mjs";
-
-import { shoppingCartRenderEventName } from "/js/shopping-cart.mjs";
-
-class PayPalStandaloneButtons extends HTMLElement {
+class PayPalStandaloneButtonsV6 extends HTMLElement {
   constructor() {
     super();
     this.paypalOneTimePaymentSession = null;
@@ -16,24 +8,15 @@ class PayPalStandaloneButtons extends HTMLElement {
     this.venmoButtonReference = null;
   }
 
-  async getBrowserSafeClientToken() {
-    const response = await fetch(
-      `${window.config.apiBaseUrl}/api/browser-safe-client-token`,
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      },
-    );
-
-    const { browser_safe_access_token } = await response.json();
-    return browser_safe_access_token;
+  getBrowserSafeClientToken() {
+    const { search } = new URL(window.location.href);
+    const params = new URLSearchParams(search);
+    return params.get("client-token") || "";
   }
 
   async createOrder() {
     try {
-      const { products } = getCartLocalStorage();
+      const { products } = { products: [{ id: "RMJ00001", quantity: 1 }] };
       const data = products.map(({ id, quantity }) => {
         return { sku: id, quantity };
       });
@@ -89,7 +72,6 @@ class PayPalStandaloneButtons extends HTMLElement {
       const errorDetail = orderData?.details?.[0];
 
       if (orderData.id && orderData.status === "COMPLETED") {
-        setCartLocalStorage({ products: [] });
         window.location.href = `/order-complete/?paypal-order-id=${orderData.id}`;
       } else if (errorDetail) {
         throw new Error(`${errorDetail.description} (${orderData.debug_id})`);
@@ -148,34 +130,25 @@ class PayPalStandaloneButtons extends HTMLElement {
   }
 
   async onLoad() {
-    const { products } = getCartLocalStorage();
-    if (products.length === 0) {
-      return;
-    }
+    const clientToken = this.getBrowserSafeClientToken();
+    const sdkInstance = await window.paypal.createInstance({
+      clientToken,
+      components: ["paypal-payments", "venmo-payments"],
+    });
 
-    const clientToken = await this.getBrowserSafeClientToken();
-    const sdkInstance = await window.paypal.createInstance({ clientToken });
+    this.paypalOneTimePaymentSession =
+      sdkInstance.createPayPalOneTimePaymentSession({
+        onApprove: this.onApprove.bind(this),
+      });
 
-    const elgibility = await sdkInstance.findEligibleMethods();
+    this.renderPayPalButton();
 
-    if (elgibility.isEligible("paypal")) {
-      this.paypalOneTimePaymentSession =
-        sdkInstance.createPayPalOneTimePaymentSession({
-          onApprove: this.onApprove.bind(this),
-          // onShippingAddressChange: this.onShippingAddressChange.bind(this),
-        });
+    this.venmoOneTimePaymentSession =
+      sdkInstance.createVenmoOneTimePaymentSession({
+        onApprove: this.onApprove.bind(this),
+      });
 
-      this.renderPayPalButton();
-    }
-
-    if (elgibility.isEligible("venmo")) {
-      this.venmoOneTimePaymentSession =
-        sdkInstance.createVenmoOneTimePaymentSession({
-          onApprove: this.onApprove.bind(this),
-        });
-
-      this.renderVenmoButton();
-    }
+    this.renderVenmoButton();
   }
 
   renderPayPalButton() {
@@ -211,19 +184,7 @@ class PayPalStandaloneButtons extends HTMLElement {
   }
 
   connectedCallback() {
-    window.addEventListener(shoppingCartRenderEventName, () => {
-      if (this.paypalButtonReference) {
-        return;
-      }
-      this.onLoad();
-    });
-
-    window.addEventListener(updateCartEventName, ({ detail }) => {
-      const { products } = detail.shoppingCart;
-      if (products.length === 0) {
-        this.close();
-      }
-    });
+    this.onLoad();
   }
 
   renderErrorMessage(message) {
@@ -246,6 +207,6 @@ class PayPalStandaloneButtons extends HTMLElement {
 }
 
 window.customElements.define(
-  "paypal-standalone-buttons",
-  PayPalStandaloneButtons,
+  "paypal-standalone-buttons-v6",
+  PayPalStandaloneButtonsV6,
 );

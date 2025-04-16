@@ -1,0 +1,16 @@
+---
+layout: layouts/base.njk
+title: Speed Test v5 - White Rabbit Vintage Market
+description: Artfully curated vintage items to bring curiousity & intrigue to your home
+---
+
+<div class="mx-6 my-6">
+  <h2 class="text-3xl">PayPal SDK v5</h2>
+
+  <div class="mt-8 flex">
+    <paypal-standalone-buttons-v5 class="block grow sm:grow-0 sm:min-w-96 sm:max-w-sm"></paypal-standalone-buttons>
+  </div>
+</div>
+
+<script src="https://www.paypal.com/sdk/js?client-id={{ config.paypalSandboxClientId }}&components=buttons&enable-funding=venmo"></script>
+<script type="module" src="/js/paypal-buttons-v5-speedtest.mjs"></script>
