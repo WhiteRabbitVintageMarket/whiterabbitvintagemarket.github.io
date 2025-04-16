@@ -197,9 +197,7 @@ class PayPalStandaloneButtonsV6 extends HTMLElement {
     const message = document.createElement("p");
     message.classList.add("text-2xl", "mt-5");
     message.innerText = "Loading complete!";
-    setTimeout(() => {
-      this.append(message);
-    }, 500);
+    this.append(message);
   }
 
   renderErrorMessage(message) {

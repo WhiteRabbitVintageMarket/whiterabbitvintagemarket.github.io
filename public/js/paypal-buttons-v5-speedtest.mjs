@@ -188,6 +188,7 @@ class PayPalStandaloneButtonsV5 extends HTMLElement {
       const message = document.createElement("p");
       message.classList.add("text-2xl", "mt-5");
       message.innerText = "Loading complete!";
+      // half a second delay to account for button label animation
       setTimeout(() => {
         this.append(message);
       }, 500);
