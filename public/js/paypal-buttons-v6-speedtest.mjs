@@ -12,7 +12,8 @@ class PayPalStandaloneButtonsV6 extends HTMLElement {
     const { search } = new URL(window.location.href);
     const params = new URLSearchParams(search);
 
-    const defaultSandboxTestClientToken = "eyJraWQiOiJkMTA2ZTUwNjkzOWYxMWVlYjlkMTAyNDJhYzEyMDAwMiIsInR5cCI6IkpXVCIsImFsZyI6IkVTMjU2In0.eyJpc3MiOiJodHRwczovL2FwaS5zYW5kYm94LnBheXBhbC5jb20iLCJzdWIiOiJMVEFGQU5WQlFCOFpBIiwiYWNyIjpbImNsaWVudCJdLCJzY29wZSI6WyJCcmFpbnRyZWU6VmF1bHQiXSwib3B0aW9ucyI6e30sImF6IjoiY2NnMTguc2xjIiwiZXh0ZXJuYWxfaWQiOlsiUGF5UGFsOkxUQUZBTlZCUUI4WkEiLCJCcmFpbnRyZWU6NWN5cnl2cGttbTR2emc2cCJdLCJleHAiOjE3NDQ4Mjg3NDQsImlhdCI6MTc0NDgyNzg0NCwianRpIjoiVTJBQUxlOHowdHFrRTJPQV9wNU1mY2FrdU9JeUFQbjFmZElYQ0ltamZiMzgxanZGMnZsd1l5S3FPMW03RXVBR2lleWQ2QTRaSDk5Z2Z3R3ZWOVNLLUN6ZW85Z3NDXzg4SlI5c1BnV3ZSRHFJR0pCd1lyOTEtZmFiUXRWU0Y4ZHciLCJjbGllbnRfaWQiOiJBVWhobmdRWnVBMTk2WFUyX3pWS2poWF9mdGVxVF9fd3c1NG1lYW1QQzdoTFNnR2xBOG1aRzBpZ182bERpSmdVdkN4UDRTeG0yRjZxQmV4QyJ9.ffgwvIf2hQ2NChW0N-AEZ70PQoTajFyp-xp_kbgJ-XnVSMRo3Q4Dq513Q4T05U7vRFSnGCeKef8E1XrwkH_akg";
+    const defaultSandboxTestClientToken =
+      "eyJraWQiOiJkMTA2ZTUwNjkzOWYxMWVlYjlkMTAyNDJhYzEyMDAwMiIsInR5cCI6IkpXVCIsImFsZyI6IkVTMjU2In0.eyJpc3MiOiJodHRwczovL2FwaS5zYW5kYm94LnBheXBhbC5jb20iLCJzdWIiOiJMVEFGQU5WQlFCOFpBIiwiYWNyIjpbImNsaWVudCJdLCJzY29wZSI6WyJCcmFpbnRyZWU6VmF1bHQiXSwib3B0aW9ucyI6e30sImF6IjoiY2NnMTguc2xjIiwiZXh0ZXJuYWxfaWQiOlsiUGF5UGFsOkxUQUZBTlZCUUI4WkEiLCJCcmFpbnRyZWU6NWN5cnl2cGttbTR2emc2cCJdLCJleHAiOjE3NDQ4Mjg3NDQsImlhdCI6MTc0NDgyNzg0NCwianRpIjoiVTJBQUxlOHowdHFrRTJPQV9wNU1mY2FrdU9JeUFQbjFmZElYQ0ltamZiMzgxanZGMnZsd1l5S3FPMW03RXVBR2lleWQ2QTRaSDk5Z2Z3R3ZWOVNLLUN6ZW85Z3NDXzg4SlI5c1BnV3ZSRHFJR0pCd1lyOTEtZmFiUXRWU0Y4ZHciLCJjbGllbnRfaWQiOiJBVWhobmdRWnVBMTk2WFUyX3pWS2poWF9mdGVxVF9fd3c1NG1lYW1QQzdoTFNnR2xBOG1aRzBpZ182bERpSmdVdkN4UDRTeG0yRjZxQmV4QyJ9.ffgwvIf2hQ2NChW0N-AEZ70PQoTajFyp-xp_kbgJ-XnVSMRo3Q4Dq513Q4T05U7vRFSnGCeKef8E1XrwkH_akg";
 
     return params.get("client-token") || defaultSandboxTestClientToken;
   }
@@ -152,6 +153,8 @@ class PayPalStandaloneButtonsV6 extends HTMLElement {
       });
 
     this.renderVenmoButton();
+
+    this.renderCompleteMessage();
   }
 
   renderPayPalButton() {
@@ -188,6 +191,15 @@ class PayPalStandaloneButtonsV6 extends HTMLElement {
 
   connectedCallback() {
     this.onLoad();
+  }
+
+  renderCompleteMessage() {
+    const message = document.createElement("p");
+    message.classList.add("text-2xl", "mt-5");
+    message.innerText = "Loading complete!";
+    setTimeout(() => {
+      this.append(message);
+    }, 500);
   }
 
   renderErrorMessage(message) {
