@@ -12,6 +12,9 @@ class PayPalStandaloneButtons extends HTMLElement {
     this.paypalOneTimePaymentSession = null;
     this.paypalButtonReference = null;
 
+    this.paylaterOneTimePaymentSession = null;
+    this.paylaterButtonReference = null;
+
     this.venmoOneTimePaymentSession = null;
     this.venmoButtonReference = null;
   }
@@ -133,6 +136,26 @@ class PayPalStandaloneButtons extends HTMLElement {
     }
   }
 
+  async onPayLaterClick() {
+    const orderIdPromise = this.createOrder().then((id) => {
+      return { orderId: id };
+    });
+
+    const params = new URLSearchParams(window.location.search);
+    const usePaymentHandler = params.get("payment-handler");
+    const presentationMode =
+      usePaymentHandler === "true" ? "payment-handler" : "auto";
+
+    try {
+      await this.paylaterOneTimePaymentSession.start(
+        { presentationMode },
+        orderIdPromise,
+      );
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
   async onVenmoClick() {
     const orderIdPromise = this.createOrder().then((id) => {
       return { orderId: id };
@@ -168,6 +191,15 @@ class PayPalStandaloneButtons extends HTMLElement {
       this.renderPayPalButton();
     }
 
+    if (elgibility.isEligible("paylater")) {
+      this.paylaterOneTimePaymentSession =
+        sdkInstance.createPayLaterOneTimePaymentSession({
+          onApprove: this.onApprove.bind(this),
+        });
+
+      this.renderPayLaterButton(elgibility.getDetails("paylater"));
+    }
+
     if (elgibility.isEligible("venmo")) {
       this.venmoOneTimePaymentSession =
         sdkInstance.createVenmoOneTimePaymentSession({
@@ -188,6 +220,18 @@ class PayPalStandaloneButtons extends HTMLElement {
     this.paypalButtonReference = document.querySelector("paypal-button");
   }
 
+  renderPayLaterButton({ productCode, countryCode }) {
+    const paylaterButton = document.createElement("paypal-pay-later-button");
+    paylaterButton.type = "pay";
+    paylaterButton.productCode = productCode;
+    paylaterButton.countryCode = countryCode;
+    paylaterButton.classList.add("w-full", "mb-3.5");
+    paylaterButton.onclick = this.onPayLaterClick.bind(this);
+
+    this.appendChild(paylaterButton);
+    this.paylaterButtonReference = document.createElement("paypal-pay-later-button");
+  }
+
   renderVenmoButton() {
     const venmoButton = document.createElement("venmo-button");
     venmoButton.type = "pay";
@@ -202,6 +246,11 @@ class PayPalStandaloneButtons extends HTMLElement {
     if (this.paypalButtonReference) {
       this.paypalButtonReference.remove();
       this.paypalButtonReference = null;
+    }
+
+    if (this.paylaterButtonReference) {
+      this.paylaterButtonReference.remove();
+      this.paylaterButtonReference = null;
     }
 
     if (this.venmoButtonReference) {
