@@ -122,9 +122,8 @@ class PayPalStandaloneButtons extends HTMLElement {
     });
 
     const params = new URLSearchParams(window.location.search);
-    const usePaymentHandler = params.get("payment-handler");
-    const presentationMode =
-      usePaymentHandler === "true" ? "payment-handler" : "auto";
+    const presentationModeQueryParamValue = params.get("presentation-mode");
+    const presentationMode = presentationModeQueryParamValue ?? "auto";
 
     try {
       await this.paypalOneTimePaymentSession.start(
@@ -142,9 +141,8 @@ class PayPalStandaloneButtons extends HTMLElement {
     });
 
     const params = new URLSearchParams(window.location.search);
-    const usePaymentHandler = params.get("payment-handler");
-    const presentationMode =
-      usePaymentHandler === "true" ? "payment-handler" : "auto";
+    const presentationModeQueryParamValue = params.get("presentation-mode");
+    const presentationMode = presentationModeQueryParamValue ?? "auto";
 
     try {
       await this.paylaterOneTimePaymentSession.start(
@@ -160,9 +158,14 @@ class PayPalStandaloneButtons extends HTMLElement {
     const orderIdPromise = this.createOrder().then((id) => {
       return { orderId: id };
     });
+
+    const params = new URLSearchParams(window.location.search);
+    const presentationModeQueryParamValue = params.get("presentation-mode");
+    const presentationMode = presentationModeQueryParamValue ?? "auto";
+
     try {
       await this.venmoOneTimePaymentSession.start(
-        { presentationMode: "auto" },
+        { presentationMode },
         orderIdPromise,
       );
     } catch (error) {
@@ -224,7 +227,7 @@ class PayPalStandaloneButtons extends HTMLElement {
   }
 
   renderPayLaterButton({ productCode, countryCode }) {
-    const paylaterButton = document.ateElement("paypal-pay-later-button");
+    const paylaterButton = document.createElement("paypal-pay-later-button");
     paylaterButton.type = "pay";
     paylaterButton.productCode = productCode;
     paylaterButton.countryCode = countryCode;
