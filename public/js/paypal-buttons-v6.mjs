@@ -177,7 +177,10 @@ class PayPalStandaloneButtons extends HTMLElement {
     }
 
     const clientToken = await this.getBrowserSafeClientToken();
-    const sdkInstance = await window.paypal.createInstance({ clientToken });
+    const sdkInstance = await window.paypal.createInstance({
+      clientToken,
+      components: ["paypal-payments", "venmo-payments"],
+    });
 
     const elgibility = await sdkInstance.findEligibleMethods();
 
@@ -221,7 +224,7 @@ class PayPalStandaloneButtons extends HTMLElement {
   }
 
   renderPayLaterButton({ productCode, countryCode }) {
-    const paylaterButton = document.createElement("paypal-pay-later-button");
+    const paylaterButton = document.ateElement("paypal-pay-later-button");
     paylaterButton.type = "pay";
     paylaterButton.productCode = productCode;
     paylaterButton.countryCode = countryCode;
@@ -229,7 +232,9 @@ class PayPalStandaloneButtons extends HTMLElement {
     paylaterButton.onclick = this.onPayLaterClick.bind(this);
 
     this.appendChild(paylaterButton);
-    this.paylaterButtonReference = document.createElement("paypal-pay-later-button");
+    this.paylaterButtonReference = document.createElement(
+      "paypal-pay-later-button",
+    );
   }
 
   renderVenmoButton() {
