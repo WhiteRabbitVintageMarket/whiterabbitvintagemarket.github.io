@@ -191,7 +191,7 @@ class PayPalStandaloneButtons extends HTMLElement {
       this.paypalOneTimePaymentSession =
         sdkInstance.createPayPalOneTimePaymentSession({
           onApprove: this.onApprove.bind(this),
-          // onShippingAddressChange: this.onShippingAddressChange.bind(this),
+          onShippingAddressChange: this.onShippingAddressChange.bind(this),
         });
 
       this.renderPayPalButton();
